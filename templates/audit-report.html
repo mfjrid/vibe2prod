@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Production Readiness Audit Report — vibe2prod</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --p0: #ef4444;
+      --p0-bg: rgba(239, 68, 68, 0.15);
+      --p1: #f97316;
+      --p1-bg: rgba(249, 115, 22, 0.15);
+      --p2: #eab308;
+      --p2-bg: rgba(234, 179, 8, 0.15);
+      --p3: #3b82f6;
+      --p3-bg: rgba(59, 130, 246, 0.15);
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 2rem 1rem;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+    
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid var(--primary);
+      color: #c7d2fe;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; }
+    .subtitle { color: var(--text-muted); font-size: 0.95rem; }
+
+    /* Metadata & Score Cards */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .score-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .score-gauge {
+      width: 110px;
+      height: 110px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .score-gauge svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    .score-gauge circle {
+      fill: none;
+      stroke-width: 8;
+      stroke-linecap: round;
+    }
+
+    .gauge-bg { stroke: #1f2937; }
+    .gauge-fill {
+      stroke: var(--success);
+      stroke-dasharray: 283;
+      stroke-dashoffset: 56; /* 80% default */
+      transition: stroke-dashoffset 1s ease-in-out;
+    }
+
+    .score-number {
+      position: absolute;
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
+
+    .meta-list { list-style: none; font-size: 0.9rem; }
+    .meta-list li {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .meta-list li:last-child { border-bottom: none; }
+    .meta-label { color: var(--text-muted); }
+    .meta-val { font-weight: 600; }
+
+    /* Severity Counters */
+    .counters-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+
+    .counter-item {
+      text-align: center;
+      padding: 1rem 0.5rem;
+      border-radius: 8px;
+    }
+    .counter-p0 { background: var(--p0-bg); color: var(--p0); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .counter-p1 { background: var(--p1-bg); color: var(--p1); border: 1px solid rgba(249, 115, 22, 0.3); }
+    .counter-p2 { background: var(--p2-bg); color: var(--p2); border: 1px solid rgba(234, 179, 8, 0.3); }
+    .counter-p3 { background: var(--p3-bg); color: var(--p3); border: 1px solid rgba(59, 130, 246, 0.3); }
+
+    .counter-num { font-size: 1.75rem; font-weight: 700; line-height: 1; }
+    .counter-label { font-size: 0.75rem; text-transform: uppercase; font-weight: 600; margin-top: 0.25rem; }
+
+    /* Findings Filter & Table */
+    .section-title {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .filters-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .btn-group { display: flex; gap: 0.5rem; }
+    .filter-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .search-input {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      width: 250px;
+    }
+
+    .findings-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .findings-table th {
+      background: rgba(31, 41, 55, 0.6);
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .findings-table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--card-border);
+      vertical-align: top;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-p0 { background: var(--p0-bg); color: var(--p0); border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-p1 { background: var(--p1-bg); color: var(--p1); border: 1px solid rgba(249, 115, 22, 0.4); }
+    .badge-p2 { background: var(--p2-bg); color: var(--p2); border: 1px solid rgba(234, 179, 8, 0.4); }
+    .badge-p3 { background: var(--p3-bg); color: var(--p3); border: 1px solid rgba(59, 130, 246, 0.4); }
+
+    .code-evidence {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+      color: #93c5fd;
+      background: rgba(15, 23, 42, 0.6);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 0.25rem;
+    }
+
+    /* Remediation Prompts Box */
+    .prompt-box {
+      margin-top: 2rem;
+      background: #0f172a;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .prompt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    .copy-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .copy-btn:hover { background: var(--primary-hover); }
+
+    pre {
+      background: #020617;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      white-space: pre-wrap;
+    }
+
+    /* Print View */
+    @media print {
+      body { background: #fff; color: #000; padding: 0; }
+      .card, .prompt-box { border: 1px solid #ccc; background: #fff; color: #000; }
+      .filters-bar, .copy-btn { display: none; }
+      .gauge-fill { stroke: #000; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <header>
+    <div>
+      <div class="brand-badge">⚡ vibe2prod audit report</div>
+      <h1>{{PROJECT_NAME}}</h1>
+      <p class="subtitle">Production Readiness &amp; Security Hardening Review</p>
+    </div>
+    <div style="text-align: right;">
+      <span style="font-size: 0.85rem; color: var(--text-muted);">Inspection Date:</span>
+      <div style="font-weight: 600;">{{AUDIT_DATE}}</div>
+    </div>
+  </header>
+
+  <!-- Top Dashboard Grid -->
+  <div class="dashboard-grid">
+    <!-- Health Score -->
+    <div class="card score-card">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Readiness Score</div>
+        <div style="font-size: 1.3rem; font-weight: 700; margin: 0.25rem 0;">{{READINESS_STATUS}}</div>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Confidence: {{CONFIDENCE_LEVEL}}</span>
+      </div>
+      <div class="score-gauge">
+        <svg viewBox="0 0 100 100">
+          <circle class="gauge-bg" cx="50" cy="50" r="45"></circle>
+          <circle class="gauge-fill" id="gaugeCircle" cx="50" cy="50" r="45"></circle>
+        </svg>
+        <div class="score-number">{{SCORE_VALUE}}</div>
+      </div>
+    </div>
+
+    <!-- Severity Counters -->
+    <div class="card">
+      <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 0.75rem;">Findings by Priority</div>
+      <div class="counters-grid">
+        <div class="counter-item counter-p0">
+          <div class="counter-num">{{P0_COUNT}}</div>
+          <div class="counter-label">P0 Critical</div>
+        </div>
+        <div class="counter-item counter-p1">
+          <div class="counter-num">{{P1_COUNT}}</div>
+          <div class="counter-label">P1 High</div>
+        </div>
+        <div class="counter-item counter-p2">
+          <div class="counter-num">{{P2_COUNT}}</div>
+          <div class="counter-label">P2 Med</div>
+        </div>
+        <div class="counter-item counter-p3">
+          <div class="counter-num">{{P3_COUNT}}</div>
+          <div class="counter-label">P3 Low</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Environment & Stack Details -->
+    <div class="card">
+      <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Target Specification</div>
+      <ul class="meta-list">
+        <li><span class="meta-label">Primary Stack:</span> <span class="meta-val">{{PRIMARY_STACK}}</span></li>
+        <li><span class="meta-label">Environment:</span> <span class="meta-val">{{ENVIRONMENT}}</span></li>
+        <li><span class="meta-label">Audit Depth:</span> <span class="meta-val">{{AUDIT_DEPTH}}</span></li>
+        <li><span class="meta-label">Controls Evaluated:</span> <span class="meta-val">{{CONTROLS_COUNT}}</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Findings Table Section -->
+  <div class="card">
+    <div class="section-title">
+      <span>🛡️</span> Prioritized Findings &amp; Remediation Backlog
+    </div>
+
+    <!-- Filter Buttons & Search -->
+    <div class="filters-bar">
+      <div class="btn-group">
+        <button class="filter-btn active" onclick="filterFindings('all', this)">All</button>
+        <button class="filter-btn" onclick="filterFindings('P0', this)">P0 Critical</button>
+        <button class="filter-btn" onclick="filterFindings('P1', this)">P1 High</button>
+        <button class="filter-btn" onclick="filterFindings('P2', this)">P2 Medium</button>
+        <button class="filter-btn" onclick="filterFindings('P3', this)">P3 Low</button>
+      </div>
+      <input type="text" class="search-input" id="searchInput" placeholder="Search findings, routes, or files..." onkeyup="searchFindings()">
+    </div>
+
+    <!-- Table -->
+    <table class="findings-table" id="findingsTable">
+      <thead>
+        <tr>
+          <th style="width: 100px;">Priority</th>
+          <th style="width: 120px;">ID</th>
+          <th>Finding &amp; Concrete Evidence</th>
+          <th style="width: 35%;">Impact &amp; Recommended Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Sample/Placeholder Row -->
+        <tr data-priority="P0">
+          <td><span class="badge badge-p0">P0 Critical</span></td>
+          <td><code>SEC-001</code></td>
+          <td>
+            <strong>{{FINDING_TITLE}}</strong>
+            <div>{{FINDING_SUMMARY}}</div>
+            <span class="code-evidence">{{FILE_PATH_OR_ROUTE}}</span>
+          </td>
+          <td>
+            <div style="color: #fca5a5; font-size: 0.85rem; margin-bottom: 0.25rem;"><strong>Impact:</strong> {{IMPACT_DESCRIPTION}}</div>
+            <div style="font-size: 0.85rem;"><strong>Action:</strong> {{ACTION_DESCRIPTION}}</div>
+          </td>
+        </tr>
+        <!-- Repeat rows dynamically populated by agent -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Auto-Fix AI Prompt Section -->
+  <div class="prompt-box">
+    <div class="prompt-header">
+      <div>
+        <strong style="color: #c7d2fe;">🤖 AI Auto-Fix Recipe (Ready for Cursor / Claude / Antigravity)</strong>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Copy this structured prompt to auto-remediate top priority findings with automated tests.</p>
+      </div>
+      <button class="copy-btn" onclick="copyPrompt()">Copy Prompt</button>
+    </div>
+    <pre id="promptContent">{{AUTO_FIX_PROMPT_CONTENT}}</pre>
+  </div>
+</div>
+
+<script>
+  function filterFindings(priority, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const rows = document.querySelectorAll('#findingsTable tbody tr');
+    rows.forEach(row => {
+      if (priority === 'all' || row.getAttribute('data-priority') === priority) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  function searchFindings() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#findingsTable tbody tr');
+    rows.forEach(row => {
+      const text = row.innerText.toLowerCase();
+      row.style.display = text.includes(query) ? '' : 'none';
+    });
+  }
+
+  function copyPrompt() {
+    const text = document.getElementById('promptContent').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.innerText = 'Copied!';
+      setTimeout(() => btn.innerText = 'Copy Prompt', 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
+
