@@ -3,39 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Production Readiness Audit Report — vibe2prod</title>
+  <title>Production Readiness &amp; Quality Audit Report — vibe2prod</title>
   <style>
     :root {
       --bg: #0b0f19;
       --card-bg: #111827;
+      --card-header: #1e293b;
       --card-border: #1f2937;
+      --border-subtle: rgba(255, 255, 255, 0.08);
       --text: #f3f4f6;
-      --text-muted: #9ca3af;
+      --text-muted: #94a3b8;
+      --text-bright: #ffffff;
+      
       --primary: #6366f1;
       --primary-hover: #4f46e5;
+      --primary-glow: rgba(99, 102, 241, 0.2);
+
       --p0: #ef4444;
       --p0-bg: rgba(239, 68, 68, 0.15);
+      --p0-border: rgba(239, 68, 68, 0.4);
+
       --p1: #f97316;
       --p1-bg: rgba(249, 115, 22, 0.15);
+      --p1-border: rgba(249, 115, 22, 0.4);
+
       --p2: #eab308;
       --p2-bg: rgba(234, 179, 8, 0.15);
+      --p2-border: rgba(234, 179, 8, 0.4);
+
       --p3: #3b82f6;
       --p3-bg: rgba(59, 130, 246, 0.15);
+      --p3-border: rgba(59, 130, 246, 0.4);
+
       --success: #10b981;
       --success-bg: rgba(16, 185, 129, 0.15);
+      --success-border: rgba(16, 185, 129, 0.4);
+
+      --na: #6b7280;
+      --na-bg: rgba(107, 114, 128, 0.15);
+      --na-border: rgba(107, 114, 128, 0.3);
+
+      --unverified: #a855f7;
+      --unverified-bg: rgba(168, 85, 247, 0.15);
+      --unverified-border: rgba(168, 85, 247, 0.4);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
       background-color: var(--bg);
       color: var(--text);
-      line-height: 1.5;
-      padding: 2rem 1rem;
+      line-height: 1.55;
+      padding: 2rem 1rem 4rem;
     }
 
-    .container { max-width: 1200px; margin: 0 auto; }
-    
+    .container { max-width: 1380px; margin: 0 auto; }
+
+    /* Header */
     header {
       display: flex;
       flex-wrap: wrap;
@@ -44,14 +68,14 @@
       padding-bottom: 2rem;
       border-bottom: 1px solid var(--card-border);
       margin-bottom: 2rem;
-      gap: 1rem;
+      gap: 1.5rem;
     }
 
     .brand-badge {
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      background: rgba(99, 102, 241, 0.15);
+      background: var(--primary-glow);
       border: 1px solid var(--primary);
       color: #c7d2fe;
       padding: 0.25rem 0.75rem;
@@ -59,17 +83,43 @@
       font-size: 0.85rem;
       font-weight: 600;
       margin-bottom: 0.5rem;
+      letter-spacing: 0.03em;
     }
 
-    h1 { font-size: 2rem; font-weight: 700; }
-    .subtitle { color: var(--text-muted); font-size: 0.95rem; }
+    h1 { font-size: 2.25rem; font-weight: 800; color: #fff; letter-spacing: -0.02em; }
+    .subtitle { color: var(--text-muted); font-size: 1rem; margin-top: 0.25rem; }
 
-    /* Metadata & Score Cards */
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover { background: #1e293b; border-color: var(--primary); color: #fff; }
+    .btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    /* Top Executive Dashboard */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
       gap: 1.5rem;
-      margin-bottom: 2.5rem;
+      margin-bottom: 2rem;
     }
 
     .card {
@@ -77,6 +127,7 @@
       border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
     }
 
     .score-card {
@@ -110,28 +161,17 @@
     .gauge-fill {
       stroke: var(--success);
       stroke-dasharray: 283;
-      stroke-dashoffset: 56; /* 80% default */
+      stroke-dashoffset: 65; /* ~77% */
       transition: stroke-dashoffset 1s ease-in-out;
     }
 
     .score-number {
       position: absolute;
-      font-size: 1.8rem;
+      font-size: 1.85rem;
       font-weight: 800;
+      color: #fff;
     }
 
-    .meta-list { list-style: none; font-size: 0.9rem; }
-    .meta-list li {
-      display: flex;
-      justify-content: space-between;
-      padding: 0.4rem 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    .meta-list li:last-child { border-bottom: none; }
-    .meta-label { color: var(--text-muted); }
-    .meta-val { font-weight: 600; }
-
-    /* Severity Counters */
     .counters-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -140,149 +180,450 @@
 
     .counter-item {
       text-align: center;
-      padding: 1rem 0.5rem;
+      padding: 0.85rem 0.5rem;
       border-radius: 8px;
     }
-    .counter-p0 { background: var(--p0-bg); color: var(--p0); border: 1px solid rgba(239, 68, 68, 0.3); }
-    .counter-p1 { background: var(--p1-bg); color: var(--p1); border: 1px solid rgba(249, 115, 22, 0.3); }
-    .counter-p2 { background: var(--p2-bg); color: var(--p2); border: 1px solid rgba(234, 179, 8, 0.3); }
-    .counter-p3 { background: var(--p3-bg); color: var(--p3); border: 1px solid rgba(59, 130, 246, 0.3); }
+    .counter-p0 { background: var(--p0-bg); color: var(--p0); border: 1px solid var(--p0-border); }
+    .counter-p1 { background: var(--p1-bg); color: var(--p1); border: 1px solid var(--p1-border); }
+    .counter-p2 { background: var(--p2-bg); color: var(--p2); border: 1px solid var(--p2-border); }
+    .counter-p3 { background: var(--p3-bg); color: var(--p3); border: 1px solid var(--p3-border); }
 
-    .counter-num { font-size: 1.75rem; font-weight: 700; line-height: 1; }
-    .counter-label { font-size: 0.75rem; text-transform: uppercase; font-weight: 600; margin-top: 0.25rem; }
+    .counter-num { font-size: 1.85rem; font-weight: 800; line-height: 1; }
+    .counter-label { font-size: 0.72rem; text-transform: uppercase; font-weight: 700; margin-top: 0.35rem; letter-spacing: 0.05em; }
 
-    /* Findings Filter & Table */
-    .section-title {
-      font-size: 1.4rem;
+    .meta-list { list-style: none; font-size: 0.9rem; }
+    .meta-list li {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .meta-list li:last-child { border-bottom: none; }
+    .meta-label { color: var(--text-muted); }
+    .meta-val { font-weight: 600; color: #fff; }
+
+    /* Category Overview Matrix */
+    .matrix-title {
+      font-size: 1.15rem;
+      font-weight: 700;
       margin-bottom: 1rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
 
-    .filters-bar {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
+    .category-matrix {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
       gap: 1rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 2.5rem;
     }
 
-    .btn-group { display: flex; gap: 0.5rem; }
-    .filter-btn {
-      background: var(--card-bg);
+    .matrix-card {
+      background: #131d2e;
       border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .matrix-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      background: #172338;
+    }
+
+    .matrix-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.6rem;
+    }
+    .matrix-icon { font-size: 1.35rem; }
+    .matrix-score {
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+    }
+    .score-high { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+    .score-med { background: var(--p2-bg); color: var(--p2); border: 1px solid var(--p2-border); }
+    .score-low { background: var(--p0-bg); color: var(--p0); border: 1px solid var(--p0-border); }
+
+    .matrix-name { font-size: 0.9rem; font-weight: 600; color: #fff; line-height: 1.25; margin-bottom: 0.5rem; }
+    .matrix-stats { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Category Navigation & Filter Bar */
+    .controls-bar {
+      position: sticky;
+      top: 0.5rem;
+      z-index: 50;
+      background: rgba(17, 24, 39, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 0.85rem 1.25rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tabs-wrapper {
+      display: flex;
+      gap: 0.4rem;
+      overflow-x: auto;
+      max-width: 100%;
+      padding-bottom: 0.25rem;
+    }
+    .tabs-wrapper::-webkit-scrollbar { height: 4px; }
+    .tabs-wrapper::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+
+    .nav-tab {
+      background: transparent;
+      border: 1px solid transparent;
       color: var(--text-muted);
       padding: 0.4rem 0.85rem;
       border-radius: 6px;
       font-size: 0.85rem;
+      font-weight: 600;
       cursor: pointer;
+      white-space: nowrap;
       transition: all 0.2s;
     }
-    .filter-btn:hover, .filter-btn.active {
+    .nav-tab:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
+    .nav-tab.active {
       background: var(--primary);
       color: #fff;
       border-color: var(--primary);
     }
 
+    .filter-group {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      position: relative;
+    }
     .search-input {
-      background: var(--card-bg);
+      background: #0f172a;
       border: 1px solid var(--card-border);
-      color: var(--text);
-      padding: 0.4rem 0.85rem;
+      color: #fff;
+      padding: 0.45rem 0.85rem 0.45rem 2rem;
       border-radius: 6px;
       font-size: 0.85rem;
-      width: 250px;
+      width: 240px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--primary); }
+    .search-icon {
+      position: absolute;
+      left: 0.65rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.8rem;
     }
 
-    .findings-table {
+    .status-select {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 0.45rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Category Section Styling */
+    .audit-category-section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      margin-bottom: 2.5rem;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .category-header {
+      background: var(--card-header);
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .category-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .cat-icon-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--primary-glow);
+      border: 1px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+    }
+    .cat-title { font-size: 1.3rem; font-weight: 700; color: #fff; }
+    .cat-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+    .cat-meta-pills {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    .pill-green { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+    .pill-yellow { background: var(--p2-bg); color: var(--p2); border: 1px solid var(--p2-border); }
+    .pill-red { background: var(--p0-bg); color: var(--p0); border: 1px solid var(--p0-border); }
+    .pill-gray { background: var(--na-bg); color: var(--text-muted); border: 1px solid var(--na-border); }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .checklist-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
     }
 
-    .findings-table th {
-      background: rgba(31, 41, 55, 0.6);
+    .checklist-table th {
+      background: rgba(15, 23, 42, 0.7);
       text-align: left;
-      padding: 0.75rem 1rem;
+      padding: 0.75rem 1.25rem;
       font-weight: 600;
       color: var(--text-muted);
       border-bottom: 1px solid var(--card-border);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
     }
 
-    .findings-table td {
-      padding: 1rem;
-      border-bottom: 1px solid var(--card-border);
+    .checklist-table td {
+      padding: 0.9rem 1.25rem;
+      border-bottom: 1px solid var(--border-subtle);
       vertical-align: top;
     }
+    .checklist-table tr:last-child td { border-bottom: none; }
+    .checklist-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
 
+    /* Badges */
     .badge {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
       padding: 0.2rem 0.55rem;
       border-radius: 4px;
       font-size: 0.75rem;
       font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
     }
-    .badge-p0 { background: var(--p0-bg); color: var(--p0); border: 1px solid rgba(239, 68, 68, 0.4); }
-    .badge-p1 { background: var(--p1-bg); color: var(--p1); border: 1px solid rgba(249, 115, 22, 0.4); }
-    .badge-p2 { background: var(--p2-bg); color: var(--p2); border: 1px solid rgba(234, 179, 8, 0.4); }
-    .badge-p3 { background: var(--p3-bg); color: var(--p3); border: 1px solid rgba(59, 130, 246, 0.4); }
+    .badge-implemented { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+    .badge-partial { background: var(--p2-bg); color: var(--p2); border: 1px solid var(--p2-border); }
+    .badge-missing { background: var(--p0-bg); color: var(--p0); border: 1px solid var(--p0-border); }
+    .badge-na { background: var(--na-bg); color: var(--text-muted); border: 1px solid var(--na-border); }
+    .badge-unverified { background: var(--unverified-bg); color: var(--unverified); border: 1px solid var(--unverified-border); }
+
+    .badge-p0 { background: var(--p0-bg); color: var(--p0); border: 1px solid var(--p0-border); }
+    .badge-p1 { background: var(--p1-bg); color: var(--p1); border: 1px solid var(--p1-border); }
+    .badge-p2 { background: var(--p2-bg); color: var(--p2); border: 1px solid var(--p2-border); }
+    .badge-p3 { background: var(--p3-bg); color: var(--p3); border: 1px solid var(--p3-border); }
+
+    .conf-badge {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Affected Areas & Remediation Cards */
+    .remediation-section {
+      padding: 1.5rem;
+      background: #0d131f;
+    }
+
+    .remediation-header {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .finding-card {
+      background: #111827;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      transition: border-color 0.2s;
+    }
+    .finding-card:last-child { margin-bottom: 0; }
+    .finding-card.p0-card { border-left: 4px solid var(--p0); }
+    .finding-card.p1-card { border-left: 4px solid var(--p1); }
+    .finding-card.p2-card { border-left: 4px solid var(--p2); }
+    .finding-card.p3-card { border-left: 4px solid var(--p3); }
+
+    .finding-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .finding-title-text {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .finding-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-top: 0.75rem;
+    }
+    @media (max-width: 900px) {
+      .finding-grid { grid-template-columns: 1fr; }
+    }
+
+    .detail-panel {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .panel-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
 
     .code-evidence {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: #93c5fd;
-      background: rgba(15, 23, 42, 0.6);
-      padding: 0.2rem 0.4rem;
-      border-radius: 4px;
+      background: #020617;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
       display: inline-block;
-      margin-top: 0.25rem;
+      margin-top: 0.35rem;
+      border: 1px solid rgba(147, 197, 253, 0.2);
+      word-break: break-all;
     }
 
-    /* Remediation Prompts Box */
-    .prompt-box {
-      margin-top: 2rem;
-      background: #0f172a;
-      border: 1px solid rgba(99, 102, 241, 0.3);
-      border-radius: 10px;
-      padding: 1.25rem;
+    .fix-instructions {
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      line-height: 1.5;
     }
-    .prompt-header {
+
+    .fix-instructions ul {
+      margin-left: 1.25rem;
+      margin-top: 0.35rem;
+    }
+
+    .prompt-snippet-box {
+      margin-top: 0.75rem;
+      background: #020617;
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: 6px;
+      padding: 0.75rem;
+      position: relative;
+    }
+
+    .prompt-snippet-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.4rem;
+      font-size: 0.75rem;
+      color: #c7d2fe;
+      font-weight: 600;
     }
-    .copy-btn {
+
+    .copy-snippet-btn {
       background: var(--primary);
-      color: #fff;
       border: none;
-      padding: 0.35rem 0.75rem;
-      border-radius: 6px;
-      font-size: 0.8rem;
+      color: #fff;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
       font-weight: 600;
       cursor: pointer;
+      transition: background 0.2s;
     }
-    .copy-btn:hover { background: var(--primary-hover); }
+    .copy-snippet-btn:hover { background: var(--primary-hover); }
 
-    pre {
-      background: #020617;
-      padding: 1rem;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-family: ui-monospace, Menlo, Consolas, monospace;
-      font-size: 0.82rem;
-      color: #e2e8f0;
+    pre.code-block {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+      color: #cbd5e1;
       white-space: pre-wrap;
+      overflow-x: auto;
+      line-height: 1.45;
     }
 
-    /* Print View */
+    /* Print styles */
     @media print {
-      body { background: #fff; color: #000; padding: 0; }
-      .card, .prompt-box { border: 1px solid #ccc; background: #fff; color: #000; }
-      .filters-bar, .copy-btn { display: none; }
-      .gauge-fill { stroke: #000; }
+      body { background: #fff !important; color: #000 !important; padding: 0 !important; }
+      .container { max-width: 100% !important; }
+      .controls-bar, .header-actions, .copy-snippet-btn { display: none !important; }
+      .card, .audit-category-section, .finding-card, .detail-panel {
+        background: #fff !important;
+        color: #000 !important;
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+      }
+      .category-header { background: #f1f5f9 !important; color: #000 !important; }
+      .cat-title, .finding-title-text, h1 { color: #000 !important; }
+      .badge, .counter-item { border: 1px solid #333 !important; }
+      .code-evidence, pre.code-block { background: #f8fafc !important; color: #0f172a !important; border: 1px solid #cbd5e1 !important; }
     }
   </style>
 </head>
@@ -292,37 +633,39 @@
   <!-- Header -->
   <header>
     <div>
-      <div class="brand-badge">⚡ vibe2prod audit report</div>
+      <div class="brand-badge">⚡ vibe2prod enterprise quality audit</div>
       <h1>{{PROJECT_NAME}}</h1>
-      <p class="subtitle">Production Readiness &amp; Security Hardening Review</p>
+      <p class="subtitle">Complete 12-Module Production Readiness, Concurrency, Security &amp; Resilience Review</p>
     </div>
-    <div style="text-align: right;">
-      <span style="font-size: 0.85rem; color: var(--text-muted);">Inspection Date:</span>
-      <div style="font-weight: 600;">{{AUDIT_DATE}}</div>
+    <div class="header-actions">
+      <button class="btn" onclick="window.print()">🖨️ Print / Save PDF</button>
+      <button class="btn btn-primary" onclick="expandAll()">📂 Expand All</button>
+      <button class="btn" onclick="collapseAll()">📁 Collapse All</button>
     </div>
   </header>
 
-  <!-- Top Dashboard Grid -->
+  <!-- Executive Summary Dashboard -->
   <div class="dashboard-grid">
-    <!-- Health Score -->
+    <!-- Overall Readiness Score Gauge -->
     <div class="card score-card">
       <div>
-        <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Readiness Score</div>
-        <div style="font-size: 1.3rem; font-weight: 700; margin: 0.25rem 0;">{{READINESS_STATUS}}</div>
-        <span style="font-size: 0.8rem; color: var(--text-muted);">Confidence: {{CONFIDENCE_LEVEL}}</span>
+        <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Readiness Score</div>
+        <div style="font-size: 1.4rem; font-weight: 800; color: #fff; margin: 0.25rem 0;">{{READINESS_STATUS}}</div>
+        <div style="font-size: 0.82rem; color: var(--text-muted);">Confidence: <strong style="color: #c7d2fe;">{{CONFIDENCE_LEVEL}}</strong></div>
+        <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 0.4rem;">Severity Caps: <span style="color: #ef4444;">{{SEVERITY_CAP_REASON}}</span></div>
       </div>
       <div class="score-gauge">
         <svg viewBox="0 0 100 100">
           <circle class="gauge-bg" cx="50" cy="50" r="45"></circle>
-          <circle class="gauge-fill" id="gaugeCircle" cx="50" cy="50" r="45"></circle>
+          <circle class="gauge-fill" id="gaugeCircle" cx="50" cy="50" r="45" data-offset="{{GAUGE_OFFSET}}"></circle>
         </svg>
         <div class="score-number">{{SCORE_VALUE}}</div>
       </div>
     </div>
 
-    <!-- Severity Counters -->
+    <!-- Severity Counter Grid -->
     <div class="card">
-      <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 0.75rem;">Findings by Priority</div>
+      <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.75rem;">Actionable Findings by Priority</div>
       <div class="counters-grid">
         <div class="counter-item counter-p0">
           <div class="counter-num">{{P0_COUNT}}</div>
@@ -334,7 +677,7 @@
         </div>
         <div class="counter-item counter-p2">
           <div class="counter-num">{{P2_COUNT}}</div>
-          <div class="counter-label">P2 Med</div>
+          <div class="counter-label">P2 Medium</div>
         </div>
         <div class="counter-item counter-p3">
           <div class="counter-num">{{P3_COUNT}}</div>
@@ -343,113 +686,1379 @@
       </div>
     </div>
 
-    <!-- Environment & Stack Details -->
+    <!-- Target Specification -->
     <div class="card">
-      <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Target Specification</div>
+      <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Target Specification</div>
       <ul class="meta-list">
         <li><span class="meta-label">Primary Stack:</span> <span class="meta-val">{{PRIMARY_STACK}}</span></li>
         <li><span class="meta-label">Environment:</span> <span class="meta-val">{{ENVIRONMENT}}</span></li>
-        <li><span class="meta-label">Audit Depth:</span> <span class="meta-val">{{AUDIT_DEPTH}}</span></li>
-        <li><span class="meta-label">Controls Evaluated:</span> <span class="meta-val">{{CONTROLS_COUNT}}</span></li>
+        <li><span class="meta-label">Audit Scope:</span> <span class="meta-val">{{AUDIT_DEPTH}} (12 Modules)</span></li>
+        <li><span class="meta-label">Controls Evaluated:</span> <span class="meta-val">{{CONTROLS_COUNT}} total</span></li>
+        <li><span class="meta-label">Inspection Date:</span> <span class="meta-val">{{AUDIT_DATE}}</span></li>
       </ul>
     </div>
   </div>
 
-  <!-- Findings Table Section -->
-  <div class="card">
-    <div class="section-title">
-      <span>🛡️</span> Prioritized Findings &amp; Remediation Backlog
-    </div>
-
-    <!-- Filter Buttons & Search -->
-    <div class="filters-bar">
-      <div class="btn-group">
-        <button class="filter-btn active" onclick="filterFindings('all', this)">All</button>
-        <button class="filter-btn" onclick="filterFindings('P0', this)">P0 Critical</button>
-        <button class="filter-btn" onclick="filterFindings('P1', this)">P1 High</button>
-        <button class="filter-btn" onclick="filterFindings('P2', this)">P2 Medium</button>
-        <button class="filter-btn" onclick="filterFindings('P3', this)">P3 Low</button>
+  <!-- 12-Module Quick Navigation Matrix -->
+  <div class="matrix-title">
+    <span>🧭</span> Audit Coverage Matrix (Jump to Category Table)
+  </div>
+  <div class="category-matrix">
+    <a href="#cat-vibecoder" class="matrix-card">
+      <div class="matrix-card-header">
+        <span class="matrix-icon">🤖</span>
+        <span class="matrix-score score-med">{{SCORE_VIBECODER}}</span>
       </div>
-      <input type="text" class="search-input" id="searchInput" placeholder="Search findings, routes, or files..." onkeyup="searchFindings()">
-    </div>
-
-    <!-- Table -->
-    <table class="findings-table" id="findingsTable">
-      <thead>
-        <tr>
-          <th style="width: 100px;">Priority</th>
-          <th style="width: 120px;">ID</th>
-          <th>Finding &amp; Concrete Evidence</th>
-          <th style="width: 35%;">Impact &amp; Recommended Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Sample/Placeholder Row -->
-        <tr data-priority="P0">
-          <td><span class="badge badge-p0">P0 Critical</span></td>
-          <td><code>SEC-001</code></td>
-          <td>
-            <strong>{{FINDING_TITLE}}</strong>
-            <div>{{FINDING_SUMMARY}}</div>
-            <span class="code-evidence">{{FILE_PATH_OR_ROUTE}}</span>
-          </td>
-          <td>
-            <div style="color: #fca5a5; font-size: 0.85rem; margin-bottom: 0.25rem;"><strong>Impact:</strong> {{IMPACT_DESCRIPTION}}</div>
-            <div style="font-size: 0.85rem;"><strong>Action:</strong> {{ACTION_DESCRIPTION}}</div>
-          </td>
-        </tr>
-        <!-- Repeat rows dynamically populated by agent -->
-      </tbody>
-    </table>
+      <div class="matrix-name">1. Vibecoder Pitfalls</div>
+      <div class="matrix-stats">{{STATS_VIBECODER}}</div>
+    </a>
+    <a href="#cat-concurrency" class="matrix-card">
+      <div class="matrix-card-header">
+        <span class="matrix-icon">⚡</span>
+        <span class="matrix-score score-low">{{SCORE_CONCURRENCY}}</span>
+      </div>
+      <div class="matrix-name">2. Concurrency &amp; Idempotency</div>
+      <div class="matrix-stats">{{STATS_CONCURRENCY}}</div>
+    </a>
+    <a href="#cat-security" class="matrix-card">
+      <div class="matrix-card-header">
+        <span class="matrix-icon">🛡️</span>
+        <span class="matrix-score score-med">{{SCORE_SECURITY}}</span>
+      </div>
+      <div class="matrix-name">3. Security &amp; Protection</div>
+      <div class="matrix-stats">{{STATS_SECURITY}}</div>
+    </a>
+    <a href="#cat-access" class="matrix-card">
+      <div class="matrix-card-header">
+        <span class="matrix-icon">👤</span>
+        <span class="matrix-score score-high">{{SCORE_ACCESS}}</span>
+      </div>
+      <div class="matrix-name">4. Access &amp; RBAC (BOLA)</div>
+      <div class="matrix-stats">{{STATS_ACCESS}}</div>
+    </a>
+    <a href="#cat-backup" class="matrix-card">
+      <div class="matrix-card-header">
+        <span class="matrix-icon">💾</span>
+        <span class="matrix-score score-low">{{SCORE_BACKUP}}</span>
+      </div>
+      <div class="matrix-name">5. Backup &amp; Recovery</div>
+      <div class="matrix-stats">{{STATS_BACKUP}}</div>
+    </a>
+    <a href="#cat-logging" class="matrix-card">
+      <div class="matrix-card-header">
+        <span class="matrix-icon">📊</span>
+        <span class="matrix-score score-med">{{SCORE_LOGGING}}</span>
+      </div>
+      <div class="matrix-name">6. Observability &amp; Logs</div>
+      <div class="matrix-stats">{{STATS_LOGGING}}</div>
+    </a>
+    <a href="#cat-maintenance" class="matrix-card">
+      <div class="matrix-card-header">
+        <span class="matrix-icon">🔧</span>
+        <span class="matrix-score score-high">{{SCORE_MAINTENANCE}}</span>
+      </div>
+      <div class="matrix-name">7. Maintenance &amp; Health</div>
+      <div class="matrix-stats">{{STATS_MAINTENANCE}}</div>
+    </a>
+    <a href="#cat-performance" class="matrix-card">
+      <div class="matrix-card-header">
+        <span class="matrix-icon">🚀</span>
+        <span class="matrix-score score-med">{{SCORE_PERFORMANCE}}</span>
+      </div>
+      <div class="matrix-name">8. Performance &amp; Scalability</div>
+      <div class="matrix-stats">{{STATS_PERFORMANCE}}</div>
+    </a>
+    <a href="#cat-privacy" class="matrix-card">
+      <div class="matrix-card-header">
+        <span class="matrix-icon">🔒</span>
+        <span class="matrix-score score-high">{{SCORE_PRIVACY}}</span>
+      </div>
+      <div class="matrix-name">9. Privacy &amp; Accessibility</div>
+      <div class="matrix-stats">{{STATS_PRIVACY}}</div>
+    </a>
+    <a href="#cat-email" class="matrix-card">
+      <div class="matrix-card-header">
+        <span class="matrix-icon">✉️</span>
+        <span class="matrix-score score-high">{{SCORE_EMAIL}}</span>
+      </div>
+      <div class="matrix-name">10. Email &amp; Notifications</div>
+      <div class="matrix-stats">{{STATS_EMAIL}}</div>
+    </a>
+    <a href="#cat-seo" class="matrix-card">
+      <div class="matrix-card-header">
+        <span class="matrix-icon">🔍</span>
+        <span class="matrix-score score-high">{{SCORE_SEO}}</span>
+      </div>
+      <div class="matrix-name">11. SEO &amp; Discoverability</div>
+      <div class="matrix-stats">{{STATS_SEO}}</div>
+    </a>
+    <a href="#cat-testing" class="matrix-card">
+      <div class="matrix-card-header">
+        <span class="matrix-icon">🧪</span>
+        <span class="matrix-score score-med">{{SCORE_TESTING}}</span>
+      </div>
+      <div class="matrix-name">12. Testing &amp; Delivery</div>
+      <div class="matrix-stats">{{STATS_TESTING}}</div>
+    </a>
   </div>
 
-  <!-- Auto-Fix AI Prompt Section -->
-  <div class="prompt-box">
-    <div class="prompt-header">
-      <div>
-        <strong style="color: #c7d2fe;">🤖 AI Auto-Fix Recipe (Ready for Cursor / Claude / Antigravity)</strong>
-        <p style="font-size: 0.8rem; color: var(--text-muted);">Copy this structured prompt to auto-remediate top priority findings with automated tests.</p>
-      </div>
-      <button class="copy-btn" onclick="copyPrompt()">Copy Prompt</button>
+  <!-- Sticky Controls & Filter Bar -->
+  <div class="controls-bar">
+    <div class="tabs-wrapper" id="categoryTabs">
+      <button class="nav-tab active" onclick="filterCategory('all', this)">All Audits</button>
+      <button class="nav-tab" onclick="filterCategory('vibecoder', this)">🤖 Vibecoder</button>
+      <button class="nav-tab" onclick="filterCategory('concurrency', this)">⚡ Concurrency</button>
+      <button class="nav-tab" onclick="filterCategory('security', this)">🛡️ Security</button>
+      <button class="nav-tab" onclick="filterCategory('access', this)">👤 Access</button>
+      <button class="nav-tab" onclick="filterCategory('backup', this)">💾 Backup</button>
+      <button class="nav-tab" onclick="filterCategory('logging', this)">📊 Logging</button>
+      <button class="nav-tab" onclick="filterCategory('maintenance', this)">🔧 Maintenance</button>
+      <button class="nav-tab" onclick="filterCategory('performance', this)">🚀 Performance</button>
+      <button class="nav-tab" onclick="filterCategory('privacy', this)">🔒 Privacy</button>
+      <button class="nav-tab" onclick="filterCategory('email', this)">✉️ Email</button>
+      <button class="nav-tab" onclick="filterCategory('seo', this)">🔍 SEO</button>
+      <button class="nav-tab" onclick="filterCategory('testing', this)">🧪 Testing</button>
     </div>
-    <pre id="promptContent">{{AUTO_FIX_PROMPT_CONTENT}}</pre>
+
+    <div class="filter-group">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="globalSearch" placeholder="Search files, routes, rules..." onkeyup="performSearch()">
+      </div>
+      <select class="status-select" id="statusFilter" onchange="performSearch()">
+        <option value="all">All Control Statuses</option>
+        <option value="MISSING">Missing Only</option>
+        <option value="PARTIAL">Partial Only</option>
+        <option value="IMPLEMENTED">Implemented Only</option>
+        <option value="UNVERIFIED">Unverified Only</option>
+      </select>
+    </div>
   </div>
+
+  <!-- ========================================================================= -->
+  <!-- 1. VIBECODER PITFALLS AUDIT TABLE -->
+  <!-- ========================================================================= -->
+  <section class="audit-category-section" id="cat-vibecoder" data-category="vibecoder">
+    <div class="category-header">
+      <div class="category-title-group">
+        <div class="cat-icon-badge">🤖</div>
+        <div>
+          <div class="cat-title">1. Vibecoder &amp; AI Architecture Pitfalls Audit</div>
+          <div class="cat-desc">Audit against subtle traps commonly left by rapid AI coding tools (Cursor, v0, Bolt, Windsurf, Claude Code)</div>
+        </div>
+      </div>
+      <div class="cat-meta-pills">
+        <span class="pill pill-green">{{VIBE_PASS_COUNT}} Passed</span>
+        <span class="pill pill-yellow">{{VIBE_PARTIAL_COUNT}} Partial</span>
+        <span class="pill pill-red">{{VIBE_MISS_COUNT}} Missing</span>
+      </div>
+    </div>
+
+    <!-- Checklist Table -->
+    <div class="table-container">
+      <table class="checklist-table">
+        <thead>
+          <tr>
+            <th style="width: 110px;">ID</th>
+            <th>Evaluated Control Requirement</th>
+            <th style="width: 140px;">Status</th>
+            <th style="width: 100px;">Confidence</th>
+            <th>Inspection Finding &amp; Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>PIT-001</code></td>
+            <td><strong>Frontend Secret Leakage Prevention</strong>: No service role keys or private secrets prefixed with public identifiers (<code>NEXT_PUBLIC_</code>, <code>VITE_</code>).</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Inspected <code>.env.example</code> and client bundle declarations; no private tokens exposed to browser.</td>
+          </tr>
+          <tr>
+            <td><code>PIT-002</code></td>
+            <td><strong>Server Action Route Protection</strong>: Next.js/Remix Server Actions enforce internal session checks rather than assuming security by obscurity.</td>
+            <td><span class="badge badge-missing">MISSING</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Found 3 Server Actions in <code>app/actions/</code> exported with <code>"use server"</code> that accept mutating commands without validating caller session.</td>
+          </tr>
+          <tr>
+            <td><code>PIT-003</code></td>
+            <td><strong>Serverless Database Connection Pooling</strong>: Edge &amp; serverless runtimes connect via connection pooler (PgBouncer, Supavisor, Prisma Accelerate).</td>
+            <td><span class="badge badge-partial">PARTIAL</span></td>
+            <td><span class="conf-badge">MEDIUM</span></td>
+            <td>Prisma schema connects to direct database port (5432) without connection pooling flags in production environment variables.</td>
+          </tr>
+          <tr>
+            <td><code>PIT-004</code></td>
+            <td><strong>Runtime Input Schema Validation</strong>: Server actions and API routes validate incoming payloads using strict runtime validators (Zod/Pydantic).</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Schemas validated via Zod in <code>lib/validations/</code> before controller logic runs.</td>
+          </tr>
+          <tr>
+            <td><code>PIT-005</code></td>
+            <td><strong>AI Endpoint Max Token Caps &amp; Stream Aborts</strong>: Upstream LLM calls specify strict <code>max_tokens</code> and listen to client <code>AbortSignal</code>.</td>
+            <td><span class="badge badge-missing">MISSING</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Route <code>/api/generate</code> calls OpenAI without <code>max_tokens</code> cap, risking unbounded token cost runaway.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Affected Scope & Remediation -->
+    <div class="remediation-section">
+      <div class="remediation-header">
+        <span>⚠️</span> Bagian yang Terkena Audit &amp; Cara Memperbaikinya (Actionable Remediation)
+      </div>
+
+      <!-- Finding Item 1 -->
+      <div class="finding-card p0-card" data-priority="P0">
+        <div class="finding-top">
+          <div class="finding-title-text">Server Actions Unauthenticated Mutation Access (ID: <code>PIT-002</code>)</div>
+          <span class="badge badge-p0">P0 Critical</span>
+        </div>
+        <div class="finding-grid">
+          <div class="detail-panel">
+            <div class="panel-title">📍 Bagian yang Kena Audit (Affected Scope)</div>
+            <div>File &amp; Rute: <span class="code-evidence">app/actions/userSettings.ts#L18</span> &amp; <span class="code-evidence">app/actions/teams.ts#L44</span></div>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #cbd5e1;">
+              <strong>Bukti Audit:</strong> Server Actions diekspor secara publik tanpa pemanggilan <code>auth()</code> atau verifikasi session. Setiap pengguna HTTP POST eksternal dapat memicu perubahan data organisasi hanya dengan menebak parameter.
+            </p>
+          </div>
+          <div class="detail-panel">
+            <div class="panel-title">🛠️ Cara Memperbaikinya (Remediation Instructions)</div>
+            <div class="fix-instructions">
+              1. Panggil helper autentikasi sesi server (misal: <code>const session = await auth()</code>) pada baris pertama setiap Server Action.<br>
+              2. Tolak eksekusi dan lempar <code>UnauthorizedError (401)</code> jika session kosong.<br>
+              3. Tambahkan unit test yang memanggil aksi tanpa session untuk memverifikasi proteksi.
+            </div>
+            <div class="prompt-snippet-box">
+              <div class="prompt-snippet-header">
+                <span>🤖 AI Agent Fix Prompt</span>
+                <button class="copy-snippet-btn" onclick="copySnippet('prompt-pit-002')">Copy Prompt</button>
+              </div>
+              <pre class="code-block" id="prompt-pit-002">Refactor app/actions/userSettings.ts and teams.ts. Ensure all exported 'use server' functions call auth() on line 1, throw an Unauthorized error if session is missing, and verify user permissions before any database update.</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 2. CONCURRENCY, RACE CONDITIONS & IDEMPOTENCY AUDIT TABLE -->
+  <!-- ========================================================================= -->
+  <section class="audit-category-section" id="cat-concurrency" data-category="concurrency">
+    <div class="category-header">
+      <div class="category-title-group">
+        <div class="cat-icon-badge">⚡</div>
+        <div>
+          <div class="cat-title">2. Concurrency, Race Conditions &amp; Idempotency Audit</div>
+          <div class="cat-desc">Audit state mutations, balances, quota deductions, locking, transactions, and at-least-once webhook deduplication</div>
+        </div>
+      </div>
+      <div class="cat-meta-pills">
+        <span class="pill pill-green">{{CONC_PASS_COUNT}} Passed</span>
+        <span class="pill pill-yellow">{{CONC_PARTIAL_COUNT}} Partial</span>
+        <span class="pill pill-red">{{CONC_MISS_COUNT}} Missing</span>
+      </div>
+    </div>
+
+    <!-- Checklist Table -->
+    <div class="table-container">
+      <table class="checklist-table">
+        <thead>
+          <tr>
+            <th style="width: 110px;">ID</th>
+            <th>Evaluated Control Requirement</th>
+            <th style="width: 140px;">Status</th>
+            <th style="width: 100px;">Confidence</th>
+            <th>Inspection Finding &amp; Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>CONC-001</code></td>
+            <td><strong>Atomic Numerical Updates (TOCTOU Defense)</strong>: Balances, credits, stock, and vouchers use atomic queries rather than memory-based read-modify-write.</td>
+            <td><span class="badge badge-missing">MISSING</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>In <code>app/api/wallet/deduct/route.ts#L24</code>, balance is retrieved via <code>findUnique()</code>, evaluated in JS memory, and saved via <code>update()</code>. Parallel requests allow double-spending overdraft.</td>
+          </tr>
+          <tr>
+            <td><code>CONC-002</code></td>
+            <td><strong>Pessimistic Locking / DB Transactions</strong>: Multi-table state mutations wrapped in explicit database transactions with consistent lock ordering.</td>
+            <td><span class="badge badge-partial">PARTIAL</span></td>
+            <td><span class="conf-badge">MEDIUM</span></td>
+            <td>Order creation updates order table and inventory in separate sequential awaits without <code>$transaction</code> block.</td>
+          </tr>
+          <tr>
+            <td><code>CONC-003</code></td>
+            <td><strong>Database-Level Unique Constraints</strong>: Uniqueness enforced by database unique indexes, not application-level <code>if (!findFirst()) create()</code>.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Unique index exists on <code>(user_id, promotion_id)</code> preventing duplicate coupon redemptions under concurrency.</td>
+          </tr>
+          <tr>
+            <td><code>CONC-004</code></td>
+            <td><strong>Mutating API Idempotency Keys</strong>: Mutating endpoints (checkout, transfers) support <code>Idempotency-Key</code> header to prevent double submission.</td>
+            <td><span class="badge badge-missing">MISSING</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>No <code>Idempotency-Key</code> validation found on payment routes. User rapid double-clicks submit two separate orders.</td>
+          </tr>
+          <tr>
+            <td><code>CONC-005</code></td>
+            <td><strong>Webhook Event Deduplication</strong>: Ingestion verifies signatures and records event IDs into a unique <code>webhook_events</code> store to handle retries.</td>
+            <td><span class="badge badge-missing">MISSING</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Webhook handler <code>app/api/webhooks/stripe/route.ts</code> processes event payloads directly without deduplication table; network retries re-credit accounts.</td>
+          </tr>
+          <tr>
+            <td><code>CONC-006</code></td>
+            <td><strong>Background Queue Job Idempotency</strong>: Failed job retries produce identical outcomes without duplicate external side effects.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">MEDIUM</span></td>
+            <td>Worker jobs verify order state <code>WHERE status = 'PENDING'</code> before processing fulfillment.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Affected Scope & Remediation -->
+    <div class="remediation-section">
+      <div class="remediation-header">
+        <span>⚠️</span> Bagian yang Terkena Audit &amp; Cara Memperbaikinya (Actionable Remediation)
+      </div>
+
+      <!-- Finding Item 1 -->
+      <div class="finding-card p0-card" data-priority="P0">
+        <div class="finding-top">
+          <div class="finding-title-text">TOCTOU Race Condition on Balance &amp; Credit Deduction (ID: <code>CONC-001</code>)</div>
+          <span class="badge badge-p0">P0 Critical</span>
+        </div>
+        <div class="finding-grid">
+          <div class="detail-panel">
+            <div class="panel-title">📍 Bagian yang Kena Audit (Affected Scope)</div>
+            <div>File &amp; Rute: <span class="code-evidence">app/api/wallet/deduct/route.ts#L22-L38</span></div>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #cbd5e1;">
+              <strong>Bukti Audit:</strong> Pola <code>const user = await db.user.findUnique(); if (user.credits >= amount) await db.user.update({...})</code> memungkinkan dua request bersamaan membaca saldo yang sama dan sama-sama berhasil, menghasilkan saldo minus (overdraft).
+            </p>
+          </div>
+          <div class="detail-panel">
+            <div class="panel-title">🛠️ Cara Memperbaikinya (Remediation Instructions)</div>
+            <div class="fix-instructions">
+              1. Hapus pembacaan saldo ke memori JavaScript.<br>
+              2. Gunakan query atomic bersyarat:<br>
+                 <code>UPDATE users SET credits = credits - :amount WHERE id = :id AND credits >= :amount RETURNING credits;</code><br>
+              3. Jika baris yang terupdate = 0, kembalikan response <code>409 Conflict</code> (saldo tidak mencukupi).
+            </div>
+            <div class="prompt-snippet-box">
+              <div class="prompt-snippet-header">
+                <span>🤖 AI Agent Fix Prompt</span>
+                <button class="copy-snippet-btn" onclick="copySnippet('prompt-conc-001')">Copy Prompt</button>
+              </div>
+              <pre class="code-block" id="prompt-conc-001">Refactor app/api/wallet/deduct/route.ts to eliminate read-modify-write race conditions. Use an atomic conditional SQL query: UPDATE users SET credits = credits - $1 WHERE id = $2 AND credits >= $1 RETURNING credits. Return HTTP 409 if no rows were updated. Add a concurrency test with 5 parallel requests.</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Finding Item 2 -->
+      <div class="finding-card p1-card" data-priority="P1">
+        <div class="finding-top">
+          <div class="finding-title-text">Missing Webhook Deduplication Table (ID: <code>CONC-005</code>)</div>
+          <span class="badge badge-p1">P1 High</span>
+        </div>
+        <div class="finding-grid">
+          <div class="detail-panel">
+            <div class="panel-title">📍 Bagian yang Kena Audit (Affected Scope)</div>
+            <div>File &amp; Rute: <span class="code-evidence">app/api/webhooks/stripe/route.ts#L15</span></div>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #cbd5e1;">
+              <strong>Bukti Audit:</strong> Webhook Stripe diproses tanpa mencatat <code>event.id</code> ke basis data. Jika Stripe melakukan retry karena timeout jaringan, saldo user ditambahkan dua kali.
+            </p>
+          </div>
+          <div class="detail-panel">
+            <div class="panel-title">🛠️ Cara Memperbaikinya (Remediation Instructions)</div>
+            <div class="fix-instructions">
+              1. Buat tabel <code>webhook_events (event_id VARCHAR PRIMARY KEY, provider VARCHAR, created_at TIMESTAMP)</code>.<br>
+              2. Sebelum memproses order/kredit, lakukan <code>INSERT INTO webhook_events (event_id) VALUES (:id)</code>.<br>
+              3. Jika terjadi konflik unik (duplicate key), segera kembalikan <code>200 OK</code> tanpa memproses ulang logika bisnis.
+            </div>
+            <div class="prompt-snippet-box">
+              <div class="prompt-snippet-header">
+                <span>🤖 AI Agent Fix Prompt</span>
+                <button class="copy-snippet-btn" onclick="copySnippet('prompt-conc-005')">Copy Prompt</button>
+              </div>
+              <pre class="code-block" id="prompt-conc-005">Implement webhook deduplication in app/api/webhooks/stripe/route.ts. Store event.id in a webhook_events table with a unique primary key. If the event ID already exists, log duplicate and immediately return HTTP 200 without executing side effects.</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 3. SECURITY & PROTECTION AUDIT TABLE -->
+  <!-- ========================================================================= -->
+  <section class="audit-category-section" id="cat-security" data-category="security">
+    <div class="category-header">
+      <div class="category-title-group">
+        <div class="cat-icon-badge">🛡️</div>
+        <div>
+          <div class="cat-title">3. Security, Hardening &amp; Protection Audit</div>
+          <div class="cat-desc">Audit authentication, CSRF, CORS, injection, security headers, rate limiting, and secret protection</div>
+        </div>
+      </div>
+      <div class="cat-meta-pills">
+        <span class="pill pill-green">{{SEC_PASS_COUNT}} Passed</span>
+        <span class="pill pill-yellow">{{SEC_PARTIAL_COUNT}} Partial</span>
+        <span class="pill pill-red">{{SEC_MISS_COUNT}} Missing</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="checklist-table">
+        <thead>
+          <tr>
+            <th style="width: 110px;">ID</th>
+            <th>Evaluated Control Requirement</th>
+            <th style="width: 140px;">Status</th>
+            <th style="width: 100px;">Confidence</th>
+            <th>Inspection Finding &amp; Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>SEC-001</code></td>
+            <td><strong>Authentication Rate Limiting</strong>: Login, reset password, and OTP endpoints enforce IP and account-based rate limiting.</td>
+            <td><span class="badge badge-missing">MISSING</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>No rate limiting middleware configured on <code>/api/auth/login</code> or password reset endpoint, allowing brute-force attempts.</td>
+          </tr>
+          <tr>
+            <td><code>SEC-002</code></td>
+            <td><strong>Security Response Headers</strong>: HSTS, Content-Security-Policy (CSP), X-Frame-Options, X-Content-Type-Options configured.</td>
+            <td><span class="badge badge-partial">PARTIAL</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Missing strict Content Security Policy (CSP) and Permissions-Policy in <code>next.config.mjs</code>.</td>
+          </tr>
+          <tr>
+            <td><code>SEC-003</code></td>
+            <td><strong>Cross-Site Request Forgery (CSRF) Protection</strong>: State-changing cookie-authenticated browser requests enforce CSRF tokens or SameSite=Strict cookies.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Session cookies use <code>SameSite=Lax</code> and <code>Secure</code>; Next.js origin verification is active.</td>
+          </tr>
+          <tr>
+            <td><code>SEC-004</code></td>
+            <td><strong>SQL Injection Prevention</strong>: Queries use parameterized ORM queries; no raw string concatenation with untrusted input.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>All queries run through Prisma parameterized bindings; no raw SQL concatenations detected.</td>
+          </tr>
+          <tr>
+            <td><code>SEC-005</code></td>
+            <td><strong>Debug Mode &amp; Error Leakage Prevention</strong>: Detailed stack traces, SQL errors, and server paths hidden from production clients.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Global error boundary in <code>app/global-error.tsx</code> masks internal stack traces and returns generic error codes.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Affected Scope & Remediation -->
+    <div class="remediation-section">
+      <div class="remediation-header">
+        <span>⚠️</span> Bagian yang Terkena Audit &amp; Cara Memperbaikinya (Actionable Remediation)
+      </div>
+
+      <div class="finding-card p1-card" data-priority="P1">
+        <div class="finding-top">
+          <div class="finding-title-text">Missing Rate Limiter on Authentication Routes (ID: <code>SEC-001</code>)</div>
+          <span class="badge badge-p1">P1 High</span>
+        </div>
+        <div class="finding-grid">
+          <div class="detail-panel">
+            <div class="panel-title">📍 Bagian yang Kena Audit (Affected Scope)</div>
+            <div>File &amp; Rute: <span class="code-evidence">app/api/auth/[...nextauth]/route.ts</span> &amp; <span class="code-evidence">middleware.ts</span></div>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #cbd5e1;">
+              <strong>Bukti Audit:</strong> Rute login dan reset password tidak dibatasi frekuensinya. Penyerang dapat melakukan automated credential stuffing hingga ribuan percobaan per menit.
+            </p>
+          </div>
+          <div class="detail-panel">
+            <div class="panel-title">🛠️ Cara Memperbaikinya (Remediation Instructions)</div>
+            <div class="fix-instructions">
+              1. Pasang rate limiter berbasis Redis / Upstash (misal: <code>@upstash/ratelimit</code> atau <code>slowapi</code>).<br>
+              2. Batasi endpoint login maksimal 5 request per menit per alamat IP.<br>
+              3. Kirimkan header <code>429 Too Many Requests</code> dengan header <code>Retry-After</code> jika batas tercapai.
+            </div>
+            <div class="prompt-snippet-box">
+              <div class="prompt-snippet-header">
+                <span>🤖 AI Agent Fix Prompt</span>
+                <button class="copy-snippet-btn" onclick="copySnippet('prompt-sec-001')">Copy Prompt</button>
+              </div>
+              <pre class="code-block" id="prompt-sec-001">Add rate limiting middleware in middleware.ts for /api/auth/signin and /api/auth/reset-password. Limit to 5 attempts per 60 seconds per client IP using @upstash/ratelimit or an in-memory sliding window fallback. Return HTTP 429 when exceeded.</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 4. ACCESS MANAGEMENT & RBAC AUDIT TABLE -->
+  <!-- ========================================================================= -->
+  <section class="audit-category-section" id="cat-access" data-category="access">
+    <div class="category-header">
+      <div class="category-title-group">
+        <div class="cat-icon-badge">👤</div>
+        <div>
+          <div class="cat-title">4. Access Management, RBAC &amp; BOLA/IDOR Audit</div>
+          <div class="cat-desc">Audit broken object-level authorization, tenant isolation, session revocation, and least privilege</div>
+        </div>
+      </div>
+      <div class="cat-meta-pills">
+        <span class="pill pill-green">{{ACC_PASS_COUNT}} Passed</span>
+        <span class="pill pill-yellow">{{ACC_PARTIAL_COUNT}} Partial</span>
+        <span class="pill pill-red">{{ACC_MISS_COUNT}} Missing</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="checklist-table">
+        <thead>
+          <tr>
+            <th style="width: 110px;">ID</th>
+            <th>Evaluated Control Requirement</th>
+            <th style="width: 140px;">Status</th>
+            <th style="width: 100px;">Confidence</th>
+            <th>Inspection Finding &amp; Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>ACC-001</code></td>
+            <td><strong>Object-Level Authorization (BOLA/IDOR)</strong>: Direct mutations by ID verify that object belongs to requesting tenant/user.</td>
+            <td><span class="badge badge-missing">MISSING</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Route <code>DELETE /api/documents/[id]</code> deletes document by ID parameter without verifying <code>document.tenantId === session.tenantId</code>.</td>
+          </tr>
+          <tr>
+            <td><code>ACC-002</code></td>
+            <td><strong>Default-Deny Role Enforcement</strong>: Admin routes and API controllers reject access unless user has explicit admin privilege.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Admin middleware in <code>middleware.ts</code> validates <code>role === 'ADMIN'</code> before serving <code>/admin/*</code> routes.</td>
+          </tr>
+          <tr>
+            <td><code>ACC-003</code></td>
+            <td><strong>Session Revocation &amp; Force Logout</strong>: Stolen sessions or password reset triggers global session revocation.</td>
+            <td><span class="badge badge-partial">PARTIAL</span></td>
+            <td><span class="conf-badge">MEDIUM</span></td>
+            <td>JWT tokens are stateless without revocation blocklist or token versioning in database; logout does not invalidate in-flight JWTs.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Affected Scope & Remediation -->
+    <div class="remediation-section">
+      <div class="remediation-header">
+        <span>⚠️</span> Bagian yang Terkena Audit &amp; Cara Memperbaikinya (Actionable Remediation)
+      </div>
+
+      <div class="finding-card p0-card" data-priority="P0">
+        <div class="finding-top">
+          <div class="finding-title-text">Broken Object-Level Authorization (IDOR) on Document Deletion (ID: <code>ACC-001</code>)</div>
+          <span class="badge badge-p0">P0 Critical</span>
+        </div>
+        <div class="finding-grid">
+          <div class="detail-panel">
+            <div class="panel-title">📍 Bagian yang Kena Audit (Affected Scope)</div>
+            <div>File &amp; Rute: <span class="code-evidence">app/api/documents/[id]/route.ts#L31</span></div>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #cbd5e1;">
+              <strong>Bukti Audit:</strong> Endpoint mengeksekusi <code>db.document.delete({ where: { id: params.id } })</code> hanya dengan mengecek apakah user sudah login, tanpa memeriksa apakah dokumen tersebut adalah milik user yang bersangkutan.
+            </p>
+          </div>
+          <div class="detail-panel">
+            <div class="panel-title">🛠️ Cara Memperbaikinya (Remediation Instructions)</div>
+            <div class="fix-instructions">
+              1. Sertakan filter kepemilikan pada klausa query delete:<br>
+                 <code>db.document.delete({ where: { id: params.id, userId: session.user.id } })</code>.<br>
+              2. Jika dokumen tidak ditemukan atau bukan milik user, kembalikan <code>404 Not Found</code> (atau <code>403 Forbidden</code>).
+            </div>
+            <div class="prompt-snippet-box">
+              <div class="prompt-snippet-header">
+                <span>🤖 AI Agent Fix Prompt</span>
+                <button class="copy-snippet-btn" onclick="copySnippet('prompt-acc-001')">Copy Prompt</button>
+              </div>
+              <pre class="code-block" id="prompt-acc-001">Fix IDOR vulnerability in app/api/documents/[id]/route.ts. Ensure the database query explicitly includes userId: session.user.id in the WHERE clause when updating or deleting documents. Return 404/403 if unauthorized.</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 5. BACKUP, RESTORE & DISASTER RECOVERY AUDIT TABLE -->
+  <!-- ========================================================================= -->
+  <section class="audit-category-section" id="cat-backup" data-category="backup">
+    <div class="category-header">
+      <div class="category-title-group">
+        <div class="cat-icon-badge">💾</div>
+        <div>
+          <div class="cat-title">5. Backup, Restore &amp; Disaster Recovery Audit</div>
+          <div class="cat-desc">Audit automated database backups, isolated remote storage, tested restore procedures, and retention policies</div>
+        </div>
+      </div>
+      <div class="cat-meta-pills">
+        <span class="pill pill-green">{{BAK_PASS_COUNT}} Passed</span>
+        <span class="pill pill-yellow">{{BAK_PARTIAL_COUNT}} Partial</span>
+        <span class="pill pill-red">{{BAK_MISS_COUNT}} Missing</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="checklist-table">
+        <thead>
+          <tr>
+            <th style="width: 110px;">ID</th>
+            <th>Evaluated Control Requirement</th>
+            <th style="width: 140px;">Status</th>
+            <th style="width: 100px;">Confidence</th>
+            <th>Inspection Finding &amp; Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>BAK-001</code></td>
+            <td><strong>Automated Backup Schedule</strong>: Automated daily backups configured with verified retention window.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Cloud database snapshot policy active with daily backups retained for 14 days.</td>
+          </tr>
+          <tr>
+            <td><code>BAK-002</code></td>
+            <td><strong>Tested Restore Procedure</strong>: Database restore has been executed and verified in an isolated staging environment.</td>
+            <td><span class="badge badge-missing">MISSING</span></td>
+            <td><span class="conf-badge">MEDIUM</span></td>
+            <td>No documented runbook or automated script for verifying that database backups can boot the application successfully upon restore.</td>
+          </tr>
+          <tr>
+            <td><code>BAK-003</code></td>
+            <td><strong>Off-Site Encrypted Storage Isolation</strong>: Backups stored in separate credentials/accounts to prevent total ransomware loss.</td>
+            <td><span class="badge badge-unverified">UNVERIFIED</span></td>
+            <td><span class="conf-badge">LOW</span></td>
+            <td>Cannot verify cloud provider backup access control from repository configuration alone. Requires infrastructure permission.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="remediation-section">
+      <div class="remediation-header">
+        <span>⚠️</span> Bagian yang Terkena Audit &amp; Cara Memperbaikinya (Actionable Remediation)
+      </div>
+      <div class="finding-card p1-card" data-priority="P1">
+        <div class="finding-top">
+          <div class="finding-title-text">Untested Restore Runbook (ID: <code>BAK-002</code>)</div>
+          <span class="badge badge-p1">P1 High</span>
+        </div>
+        <div class="finding-grid">
+          <div class="detail-panel">
+            <div class="panel-title">📍 Bagian yang Kena Audit (Affected Scope)</div>
+            <div>Dokumentasi &amp; Skrip: <span class="code-evidence">docs/runbooks/disaster-recovery.md</span></div>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #cbd5e1;">
+              <strong>Bukti Audit:</strong> Backup ada, namun tidak pernah diuji restorasinya. Aturan non-negotiable vibe2prod menyatakan: "Backup tidak terbukti recoverable sampai proses restore berhasil diuji di lingkungan terisolasi."
+            </p>
+          </div>
+          <div class="detail-panel">
+            <div class="panel-title">🛠️ Cara Memperbaikinya (Remediation Instructions)</div>
+            <div class="fix-instructions">
+              1. Buat skrip restore otomatis untuk lingkungan staging terisolasi.<br>
+              2. Uji apakah tabel migrasi, data relasional, dan file upload terhubung sempurna.<br>
+              3. Dokumentasikan estimasi RTO (Recovery Time Objective) dan RPO (Recovery Point Objective).
+            </div>
+            <div class="prompt-snippet-box">
+              <div class="prompt-snippet-header">
+                <span>🤖 AI Agent Fix Prompt</span>
+                <button class="copy-snippet-btn" onclick="copySnippet('prompt-bak-002')">Copy Prompt</button>
+              </div>
+              <pre class="code-block" id="prompt-bak-002">Create a disaster recovery runbook in docs/runbooks/disaster-recovery.md with concrete shell commands to restore the latest database snapshot into an isolated staging environment and verify data integrity.</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 6. LOGGING & OBSERVABILITY AUDIT TABLE -->
+  <!-- ========================================================================= -->
+  <section class="audit-category-section" id="cat-logging" data-category="logging">
+    <div class="category-header">
+      <div class="category-title-group">
+        <div class="cat-icon-badge">📊</div>
+        <div>
+          <div class="cat-title">6. Logging, Activity &amp; Observability Audit</div>
+          <div class="cat-desc">Audit structured logging, correlation IDs, exception tracking (Sentry), PII redaction, and audit trails</div>
+        </div>
+      </div>
+      <div class="cat-meta-pills">
+        <span class="pill pill-green">{{LOG_PASS_COUNT}} Passed</span>
+        <span class="pill pill-yellow">{{LOG_PARTIAL_COUNT}} Partial</span>
+        <span class="pill pill-red">{{LOG_MISS_COUNT}} Missing</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="checklist-table">
+        <thead>
+          <tr>
+            <th style="width: 110px;">ID</th>
+            <th>Evaluated Control Requirement</th>
+            <th style="width: 140px;">Status</th>
+            <th style="width: 100px;">Confidence</th>
+            <th>Inspection Finding &amp; Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>LOG-001</code></td>
+            <td><strong>Centralized Error Monitoring (Sentry/Datadog)</strong>: Frontend and backend runtime crashes captured with stack traces.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Sentry SDK integrated in <code>sentry.client.config.ts</code> and <code>sentry.server.config.ts</code>.</td>
+          </tr>
+          <tr>
+            <td><code>LOG-002</code></td>
+            <td><strong>PII &amp; Password Redaction from Logs</strong>: Passwords, credit cards, bearer tokens, and secrets stripped before log emission.</td>
+            <td><span class="badge badge-missing">MISSING</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Raw request body printed via <code>console.log(req.body)</code> in auth callback handler, leaking plain passwords to server logs.</td>
+          </tr>
+          <tr>
+            <td><code>LOG-003</code></td>
+            <td><strong>Audit Trail for Sensitive Mutations</strong>: Admin privilege changes, role assignments, and deletions recorded with actor and timestamp.</td>
+            <td><span class="badge badge-partial">PARTIAL</span></td>
+            <td><span class="conf-badge">MEDIUM</span></td>
+            <td>Role updates logged to console, but not recorded in persistent queryable audit log table.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="remediation-section">
+      <div class="remediation-header">
+        <span>⚠️</span> Bagian yang Terkena Audit &amp; Cara Memperbaikinya (Actionable Remediation)
+      </div>
+      <div class="finding-card p1-card" data-priority="P1">
+        <div class="finding-top">
+          <div class="finding-title-text">Plaintext Password Leaked to Console Logs (ID: <code>LOG-002</code>)</div>
+          <span class="badge badge-p1">P1 High</span>
+        </div>
+        <div class="finding-grid">
+          <div class="detail-panel">
+            <div class="panel-title">📍 Bagian yang Kena Audit (Affected Scope)</div>
+            <div>File &amp; Rute: <span class="code-evidence">app/api/auth/register/route.ts#L17</span></div>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #cbd5e1;">
+              <strong>Bukti Audit:</strong> Baris <code>console.log('Incoming registration payload:', req.body)</code> mencetak password mentah ke logging stream production.
+            </p>
+          </div>
+          <div class="detail-panel">
+            <div class="panel-title">🛠️ Cara Memperbaikinya (Remediation Instructions)</div>
+            <div class="fix-instructions">
+              1. Hapus <code>console.log(req.body)</code>.<br>
+              2. Gunakan logger terstruktur (misal: <code>pino</code>) dengan konfigurasi redact otomatis untuk key <code>password</code>, <code>token</code>, <code>secret</code>.
+            </div>
+            <div class="prompt-snippet-box">
+              <div class="prompt-snippet-header">
+                <span>🤖 AI Agent Fix Prompt</span>
+                <button class="copy-snippet-btn" onclick="copySnippet('prompt-log-002')">Copy Prompt</button>
+              </div>
+              <pre class="code-block" id="prompt-log-002">Remove console.log(req.body) from app/api/auth/register/route.ts. Configure a structured logger with automated redaction for sensitive keys (password, token, creditCard).</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 7. MAINTENANCE & DIAGNOSTICS AUDIT TABLE -->
+  <!-- ========================================================================= -->
+  <section class="audit-category-section" id="cat-maintenance" data-category="maintenance">
+    <div class="category-header">
+      <div class="category-title-group">
+        <div class="cat-icon-badge">🔧</div>
+        <div>
+          <div class="cat-title">7. Maintenance, Diagnostics &amp; Health Checks Audit</div>
+          <div class="cat-desc">Audit health check endpoints, diagnostic privacy, graceful process shutdown, and maintenance mode</div>
+        </div>
+      </div>
+      <div class="cat-meta-pills">
+        <span class="pill pill-green">{{MAINT_PASS_COUNT}} Passed</span>
+        <span class="pill pill-yellow">{{MAINT_PARTIAL_COUNT}} Partial</span>
+        <span class="pill pill-red">{{MAINT_MISS_COUNT}} Missing</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="checklist-table">
+        <thead>
+          <tr>
+            <th style="width: 110px;">ID</th>
+            <th>Evaluated Control Requirement</th>
+            <th style="width: 140px;">Status</th>
+            <th style="width: 100px;">Confidence</th>
+            <th>Inspection Finding &amp; Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>OPS-001</code></td>
+            <td><strong>Dedicated Health Check Endpoint</strong>: <code>/healthz</code> or <code>/api/health</code> checks database connectivity for load balancers.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Endpoint <code>app/api/health/route.ts</code> runs <code>SELECT 1</code> and returns HTTP 200/503.</td>
+          </tr>
+          <tr>
+            <td><code>OPS-002</code></td>
+            <td><strong>Graceful Shutdown Signals</strong>: Application listens to <code>SIGTERM</code> and <code>SIGINT</code> to finish in-flight requests during deployment.</td>
+            <td><span class="badge badge-missing">MISSING</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Node server process does not handle <code>SIGTERM</code>; deployment rolling restarts immediately terminate active customer connections.</td>
+          </tr>
+          <tr>
+            <td><code>OPS-003</code></td>
+            <td><strong>Sanitized Diagnostics Surface</strong>: System information and route viewers do not disclose raw <code>.env</code> values or credentials to admins.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Admin diagnostics report only boolean presence of env keys without exposing secrets.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="remediation-section">
+      <div class="remediation-header">
+        <span>⚠️</span> Bagian yang Terkena Audit &amp; Cara Memperbaikinya (Actionable Remediation)
+      </div>
+      <div class="finding-card p2-card" data-priority="P2">
+        <div class="finding-top">
+          <div class="finding-title-text">Missing SIGTERM Graceful Shutdown Handler (ID: <code>OPS-002</code>)</div>
+          <span class="badge badge-p2">P2 Medium</span>
+        </div>
+        <div class="finding-grid">
+          <div class="detail-panel">
+            <div class="panel-title">📍 Bagian yang Kena Audit (Affected Scope)</div>
+            <div>File &amp; Rute: <span class="code-evidence">server.js</span> / Entrypoint Bootstrap</div>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #cbd5e1;">
+              <strong>Bukti Audit:</strong> Server mati secara instan saat container orchestrator (Kubernetes / Docker) mengirimkan sinyal restart, memutus transaksi yang sedang berjalan.
+            </p>
+          </div>
+          <div class="detail-panel">
+            <div class="panel-title">🛠️ Cara Memperbaikinya (Remediation Instructions)</div>
+            <div class="fix-instructions">
+              1. Pasang listener <code>process.on('SIGTERM', async () => {...})</code>.<br>
+              2. Hentikan penerimaan koneksi baru, beri jeda 10-15 detik untuk menyelesaikan request aktif.<br>
+              3. Tutup connection pool database dan keluar dengan kode 0.
+            </div>
+            <div class="prompt-snippet-box">
+              <div class="prompt-snippet-header">
+                <span>🤖 AI Agent Fix Prompt</span>
+                <button class="copy-snippet-btn" onclick="copySnippet('prompt-ops-002')">Copy Prompt</button>
+              </div>
+              <pre class="code-block" id="prompt-ops-002">Add a graceful shutdown handler in server entrypoint. Listen to process.on('SIGTERM') and SIGINT, stop accepting requests, allow 15 seconds to drain active connections, close database pools cleanly, and exit(0).</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 8. PERFORMANCE & SCALABILITY AUDIT TABLE -->
+  <!-- ========================================================================= -->
+  <section class="audit-category-section" id="cat-performance" data-category="performance">
+    <div class="category-header">
+      <div class="category-title-group">
+        <div class="cat-icon-badge">🚀</div>
+        <div>
+          <div class="cat-title">8. Performance, Scalability &amp; Database Indexing Audit</div>
+          <div class="cat-desc">Audit foreign key indexes, N+1 query loops, connection pool limits, caching headers, and asset compression</div>
+        </div>
+      </div>
+      <div class="cat-meta-pills">
+        <span class="pill pill-green">{{PERF_PASS_COUNT}} Passed</span>
+        <span class="pill pill-yellow">{{PERF_PARTIAL_COUNT}} Partial</span>
+        <span class="pill pill-red">{{PERF_MISS_COUNT}} Missing</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="checklist-table">
+        <thead>
+          <tr>
+            <th style="width: 110px;">ID</th>
+            <th>Evaluated Control Requirement</th>
+            <th style="width: 140px;">Status</th>
+            <th style="width: 100px;">Confidence</th>
+            <th>Inspection Finding &amp; Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>PERF-001</code></td>
+            <td><strong>Foreign Key &amp; Query Indexing</strong>: All relational foreign keys (<code>user_id</code>, <code>org_id</code>) and search filter columns have indexes.</td>
+            <td><span class="badge badge-missing">MISSING</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Table <code>orders</code> contains foreign key <code>user_id</code> and <code>status</code> without database indexes, causing table scans under load.</td>
+          </tr>
+          <tr>
+            <td><code>PERF-002</code></td>
+            <td><strong>N+1 Query Elimination</strong>: Relations in list endpoints are eagerly loaded or joined instead of querying per row in loops.</td>
+            <td><span class="badge badge-partial">PARTIAL</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>In <code>app/api/teams/route.ts#L48</code>, user avatars and profiles are fetched inside a <code>.map()</code> loop without <code>include</code>.</td>
+          </tr>
+          <tr>
+            <td><code>PERF-003</code></td>
+            <td><strong>Pagination for Unbounded Datasets</strong>: List endpoints enforce max limit and cursor/offset pagination.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>All list queries enforce <code>take: Math.min(limit, 100)</code> with cursor pagination.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="remediation-section">
+      <div class="remediation-header">
+        <span>⚠️</span> Bagian yang Terkena Audit &amp; Cara Memperbaikinya (Actionable Remediation)
+      </div>
+      <div class="finding-card p1-card" data-priority="P1">
+        <div class="finding-top">
+          <div class="finding-title-text">Missing Database Index on Foreign Key Columns (ID: <code>PERF-001</code>)</div>
+          <span class="badge badge-p1">P1 High</span>
+        </div>
+        <div class="finding-grid">
+          <div class="detail-panel">
+            <div class="panel-title">📍 Bagian yang Kena Audit (Affected Scope)</div>
+            <div>File &amp; Model: <span class="code-evidence">prisma/schema.prisma#L35</span> (Model: <code>Order</code>)</div>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #cbd5e1;">
+              <strong>Bukti Audit:</strong> Kolom <code>userId</code> dan <code>status</code> pada model <code>Order</code> tidak memiliki atribut <code>@@index([userId])</code> atau <code>@@index([status])</code>, menyebabkan full table scan ketika query daftar order dijalankan.
+            </p>
+          </div>
+          <div class="detail-panel">
+            <div class="panel-title">🛠️ Cara Memperbaikinya (Remediation Instructions)</div>
+            <div class="fix-instructions">
+              1. Buka schema database dan tambahkan index pada kolom foreign key:<br>
+                 <code>@@index([userId])</code> dan <code>@@index([status, createdAt])</code>.<br>
+              2. Jalankan migrasi database: <code>npx prisma migrate dev --name add_order_indexes</code>.
+            </div>
+            <div class="prompt-snippet-box">
+              <div class="prompt-snippet-header">
+                <span>🤖 AI Agent Fix Prompt</span>
+                <button class="copy-snippet-btn" onclick="copySnippet('prompt-perf-001')">Copy Prompt</button>
+              </div>
+              <pre class="code-block" id="prompt-perf-001">Add database indexes in prisma/schema.prisma for Order model on userId and (status, createdAt). Generate and apply the migration to prevent full table scans.</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 9. PRIVACY & ACCESSIBILITY AUDIT TABLE -->
+  <!-- ========================================================================= -->
+  <section class="audit-category-section" id="cat-privacy" data-category="privacy">
+    <div class="category-header">
+      <div class="category-title-group">
+        <div class="cat-icon-badge">🔒</div>
+        <div>
+          <div class="cat-title">9. Privacy, Data Governance &amp; Accessibility (WCAG) Audit</div>
+          <div class="cat-desc">Audit PII data minimization, GDPR account deletion, WCAG keyboard accessibility, and contrast</div>
+        </div>
+      </div>
+      <div class="cat-meta-pills">
+        <span class="pill pill-green">{{PRIV_PASS_COUNT}} Passed</span>
+        <span class="pill pill-yellow">{{PRIV_PARTIAL_COUNT}} Partial</span>
+        <span class="pill pill-red">{{PRIV_MISS_COUNT}} Missing</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="checklist-table">
+        <thead>
+          <tr>
+            <th style="width: 110px;">ID</th>
+            <th>Evaluated Control Requirement</th>
+            <th style="width: 140px;">Status</th>
+            <th style="width: 100px;">Confidence</th>
+            <th>Inspection Finding &amp; Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>PRIV-001</code></td>
+            <td><strong>PII Data Minimization &amp; Retention</strong>: Only strictly necessary personal data collected; sensitive fields encrypted at rest.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>No excessive telemetry or unnecessary personal fields requested in onboarding flow.</td>
+          </tr>
+          <tr>
+            <td><code>PRIV-002</code></td>
+            <td><strong>Account Deletion Self-Service (GDPR)</strong>: Users have a mechanism to delete their account and wipe personal records.</td>
+            <td><span class="badge badge-missing">MISSING</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Settings page lacks an account deletion endpoint or workflow; user records remain perpetually.</td>
+          </tr>
+          <tr>
+            <td><code>PRIV-003</code></td>
+            <td><strong>WCAG 2.1 AA Keyboard Navigation &amp; Focus</strong>: Forms, modals, and buttons operable via keyboard with visible focus indicators.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Radix UI / Tailwind focus rings implemented across interactive components.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="remediation-section">
+      <div class="remediation-header">
+        <span>⚠️</span> Bagian yang Terkena Audit &amp; Cara Memperbaikinya (Actionable Remediation)
+      </div>
+      <div class="finding-card p2-card" data-priority="P2">
+        <div class="finding-top">
+          <div class="finding-title-text">Missing User Account Deletion Workflow (ID: <code>PRIV-002</code>)</div>
+          <span class="badge badge-p2">P2 Medium</span>
+        </div>
+        <div class="finding-grid">
+          <div class="detail-panel">
+            <div class="panel-title">📍 Bagian yang Kena Audit (Affected Scope)</div>
+            <div>File &amp; Rute: <span class="code-evidence">app/(dashboard)/settings/profile/page.tsx</span></div>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #cbd5e1;">
+              <strong>Bukti Audit:</strong> Pengguna tidak dapat menghapus akun dan data pribadi mereka sendiri secara mandiri, berpotensi melanggar ketentuan privasi GDPR/CCPA.
+            </p>
+          </div>
+          <div class="detail-panel">
+            <div class="panel-title">🛠️ Cara Memperbaikinya (Remediation Instructions)</div>
+            <div class="fix-instructions">
+              1. Buat endpoint <code>DELETE /api/user/account</code> yang memverifikasi password / konfirmasi user.<br>
+              2. Terapkan soft deletion atau cascade delete pada data relasional yang berasosiasi dengan user.<br>
+              3. Bersihkan token sesi aktif dan kirimkan email konfirmasi penghapusan akun.
+            </div>
+            <div class="prompt-snippet-box">
+              <div class="prompt-snippet-header">
+                <span>🤖 AI Agent Fix Prompt</span>
+                <button class="copy-snippet-btn" onclick="copySnippet('prompt-priv-002')">Copy Prompt</button>
+              </div>
+              <pre class="code-block" id="prompt-priv-002">Implement self-service account deletion in app/api/user/account/route.ts. Require password re-authentication, cascade-delete or anonymize personal data, revoke all sessions, and send a confirmation notice.</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 10. EMAIL & NOTIFICATIONS AUDIT TABLE -->
+  <!-- ========================================================================= -->
+  <section class="audit-category-section" id="cat-email" data-category="email">
+    <div class="category-header">
+      <div class="category-title-group">
+        <div class="cat-icon-badge">✉️</div>
+        <div>
+          <div class="cat-title">10. Email &amp; Notification Deliverability Audit</div>
+          <div class="cat-desc">Audit SPF/DKIM records, rate limiting on verification emails, template sanitization, and queueing</div>
+        </div>
+      </div>
+      <div class="cat-meta-pills">
+        <span class="pill pill-green">{{MAIL_PASS_COUNT}} Passed</span>
+        <span class="pill pill-yellow">{{MAIL_PARTIAL_COUNT}} Partial</span>
+        <span class="pill pill-red">{{MAIL_MISS_COUNT}} Missing</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="checklist-table">
+        <thead>
+          <tr>
+            <th style="width: 110px;">ID</th>
+            <th>Evaluated Control Requirement</th>
+            <th style="width: 140px;">Status</th>
+            <th style="width: 100px;">Confidence</th>
+            <th>Inspection Finding &amp; Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>MAIL-001</code></td>
+            <td><strong>Email Delivery Rate Limiting</strong>: Verification and password reset email triggers are throttled to prevent spam bombing.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Max 3 password reset requests per 15 minutes enforced in <code>app/api/auth/forgot-password/route.ts</code>.</td>
+          </tr>
+          <tr>
+            <td><code>MAIL-002</code></td>
+            <td><strong>Domain Deliverability (SPF/DKIM/DMARC)</strong>: Sending domain verified with cryptographic authentication records.</td>
+            <td><span class="badge badge-unverified">UNVERIFIED</span></td>
+            <td><span class="conf-badge">LOW</span></td>
+            <td>DNS configuration resides outside repository scope. Requires verification in Resend/SendGrid dashboard.</td>
+          </tr>
+          <tr>
+            <td><code>MAIL-003</code></td>
+            <td><strong>Asynchronous Queue-Based Delivery</strong>: Outgoing user emails dispatched via background worker rather than blocking HTTP thread.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Emails pushed to BullMQ queue and processed by background worker.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="remediation-section">
+      <div class="remediation-header">
+        <span>✅</span> Status Ringkasan Email: Seluruh kontrol penting dalam kode aplikasi telah terimplementasi dengan baik.
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 11. SEO & DISCOVERABILITY AUDIT TABLE -->
+  <!-- ========================================================================= -->
+  <section class="audit-category-section" id="cat-seo" data-category="seo">
+    <div class="category-header">
+      <div class="category-title-group">
+        <div class="cat-icon-badge">🔍</div>
+        <div>
+          <div class="cat-title">11. SEO, Metadata &amp; Discoverability Audit</div>
+          <div class="cat-desc">Audit Open Graph tags, canonical URLs, dynamic XML sitemaps, robots.txt, and structured data</div>
+        </div>
+      </div>
+      <div class="cat-meta-pills">
+        <span class="pill pill-green">{{SEO_PASS_COUNT}} Passed</span>
+        <span class="pill pill-yellow">{{SEO_PARTIAL_COUNT}} Partial</span>
+        <span class="pill pill-red">{{SEO_MISS_COUNT}} Missing</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="checklist-table">
+        <thead>
+          <tr>
+            <th style="width: 110px;">ID</th>
+            <th>Evaluated Control Requirement</th>
+            <th style="width: 140px;">Status</th>
+            <th style="width: 100px;">Confidence</th>
+            <th>Inspection Finding &amp; Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>SEO-001</code></td>
+            <td><strong>Dynamic Sitemap &amp; Robots.txt</strong>: <code>sitemap.xml</code> and <code>robots.txt</code> generated dynamically and disallowing admin routes.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Present in <code>app/sitemap.ts</code> and <code>app/robots.ts</code>; disallows <code>/admin/</code> and <code>/api/</code>.</td>
+          </tr>
+          <tr>
+            <td><code>SEO-002</code></td>
+            <td><strong>Canonical URLs &amp; Open Graph Meta</strong>: Pages define explicit canonical links, social sharing cards, and descriptive titles.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Metadata defined using Next.js Metadata API in <code>layout.tsx</code> and page headers.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="remediation-section">
+      <div class="remediation-header">
+        <span>✅</span> Status Ringkasan SEO: Seluruh konfigurasi meta tags, sitemap, dan indexing telah terimplementasi optimal.
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 12. TESTING & CI/CD DELIVERY AUDIT TABLE -->
+  <!-- ========================================================================= -->
+  <section class="audit-category-section" id="cat-testing" data-category="testing">
+    <div class="category-header">
+      <div class="category-title-group">
+        <div class="cat-icon-badge">🧪</div>
+        <div>
+          <div class="cat-title">12. Testing, CI/CD &amp; Release Delivery Audit</div>
+          <div class="cat-desc">Audit automated unit/e2e test suites, CI workflow gates, dependency lockfile integrity, and rollback runbooks</div>
+        </div>
+      </div>
+      <div class="cat-meta-pills">
+        <span class="pill pill-green">{{TEST_PASS_COUNT}} Passed</span>
+        <span class="pill pill-yellow">{{TEST_PARTIAL_COUNT}} Partial</span>
+        <span class="pill pill-red">{{TEST_MISS_COUNT}} Missing</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="checklist-table">
+        <thead>
+          <tr>
+            <th style="width: 110px;">ID</th>
+            <th>Evaluated Control Requirement</th>
+            <th style="width: 140px;">Status</th>
+            <th style="width: 100px;">Confidence</th>
+            <th>Inspection Finding &amp; Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>TEST-001</code></td>
+            <td><strong>Automated CI Test Workflow</strong>: CI pipeline runs linter, TypeScript check, and unit/integration tests before merging.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>GitHub Actions workflow active in <code>.github/workflows/ci.yml</code> executing <code>npm test</code> and <code>npm run build</code>.</td>
+          </tr>
+          <tr>
+            <td><code>TEST-002</code></td>
+            <td><strong>Critical Workflow Test Coverage</strong>: Authentication, checkout, and authorization paths have automated integration tests.</td>
+            <td><span class="badge badge-missing">MISSING</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Only 2 trivial unit tests exist; payment checkout and authorization policies have zero automated test coverage.</td>
+          </tr>
+          <tr>
+            <td><code>TEST-003</code></td>
+            <td><strong>Deterministic Lockfile Committed</strong>: <code>package-lock.json</code> or <code>pnpm-lock.yaml</code> committed to version control.</td>
+            <td><span class="badge badge-implemented">IMPLEMENTED</span></td>
+            <td><span class="conf-badge">HIGH</span></td>
+            <td>Lockfile committed and up-to-date with manifest.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="remediation-section">
+      <div class="remediation-header">
+        <span>⚠️</span> Bagian yang Terkena Audit &amp; Cara Memperbaikinya (Actionable Remediation)
+      </div>
+      <div class="finding-card p1-card" data-priority="P1">
+        <div class="finding-top">
+          <div class="finding-title-text">Missing Integration Tests for Critical Payment Flows (ID: <code>TEST-002</code>)</div>
+          <span class="badge badge-p1">P1 High</span>
+        </div>
+        <div class="finding-grid">
+          <div class="detail-panel">
+            <div class="panel-title">📍 Bagian yang Kena Audit (Affected Scope)</div>
+            <div>File &amp; Direktori: <span class="code-evidence">tests/e2e/</span> &amp; <span class="code-evidence">tests/api/</span></div>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #cbd5e1;">
+              <strong>Bukti Audit:</strong> Alur mutasi penting (pembayaran checkout, perolehan webhook, dan proteksi role) tidak memiliki skenario test otomatis. Regresi pada rilis berikutnya dapat meloloskan bug fatal ke tahap production.
+            </p>
+          </div>
+          <div class="detail-panel">
+            <div class="panel-title">🛠️ Cara Memperbaikinya (Remediation Instructions)</div>
+            <div class="fix-instructions">
+              1. Buat test suite integrasi menggunakan Vitest atau Playwright.<br>
+              2. Simulasikan alur pembayaran sukses, alur pembayaran gagal, dan pengujian idempotensi transaksi ganda.<br>
+              3. Pasang test run pada GitHub Actions sebelum perintah deployment dijalankan.
+            </div>
+            <div class="prompt-snippet-box">
+              <div class="prompt-snippet-header">
+                <span>🤖 AI Agent Fix Prompt</span>
+                <button class="copy-snippet-btn" onclick="copySnippet('prompt-test-002')">Copy Prompt</button>
+              </div>
+              <pre class="code-block" id="prompt-test-002">Write an integration test suite in tests/api/checkout.test.ts using Vitest/Playwright that tests authenticated checkout, double-click idempotency, and invalid card payloads.</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </div>
 
+<!-- Interactive Client-side Script -->
 <script>
-  function filterFindings(priority, btn) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  // Filter by category tab
+  function filterCategory(catId, btn) {
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    const rows = document.querySelectorAll('#findingsTable tbody tr');
-    rows.forEach(row => {
-      if (priority === 'all' || row.getAttribute('data-priority') === priority) {
-        row.style.display = '';
+    const sections = document.querySelectorAll('.audit-category-section');
+    sections.forEach(sec => {
+      if (catId === 'all' || sec.getAttribute('data-category') === catId) {
+        sec.style.display = '';
       } else {
-        row.style.display = 'none';
+        sec.style.display = 'none';
       }
     });
   }
 
-  function searchFindings() {
-    const query = document.getElementById('searchInput').value.toLowerCase();
-    const rows = document.querySelectorAll('#findingsTable tbody tr');
+  // Global search & status filter
+  function performSearch() {
+    const query = document.getElementById('globalSearch').value.toLowerCase();
+    const status = document.getElementById('statusFilter').value;
+
+    const rows = document.querySelectorAll('.checklist-table tbody tr');
     rows.forEach(row => {
       const text = row.innerText.toLowerCase();
-      row.style.display = text.includes(query) ? '' : 'none';
+      const statusBadge = row.querySelector('.badge');
+      const rowStatus = statusBadge ? statusBadge.innerText.trim().toUpperCase() : '';
+
+      const matchesQuery = !query || text.includes(query);
+      const matchesStatus = (status === 'all') || (rowStatus === status);
+
+      row.style.display = (matchesQuery && matchesStatus) ? '' : 'none';
+    });
+
+    // Also filter finding cards
+    const cards = document.querySelectorAll('.finding-card');
+    cards.forEach(card => {
+      const text = card.innerText.toLowerCase();
+      card.style.display = (!query || text.includes(query)) ? '' : 'none';
     });
   }
 
-  function copyPrompt() {
-    const text = document.getElementById('promptContent').innerText;
+  // Copy AI prompt helper
+  function copySnippet(elementId) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const text = el.innerText;
     navigator.clipboard.writeText(text).then(() => {
-      const btn = document.querySelector('.copy-btn');
+      const btn = event.target;
+      const originalText = btn.innerText;
       btn.innerText = 'Copied!';
-      setTimeout(() => btn.innerText = 'Copy Prompt', 2000);
+      btn.style.background = '#10b981';
+      setTimeout(() => {
+        btn.innerText = originalText;
+        btn.style.background = '';
+      }, 2000);
     });
   }
+
+  // Expand / collapse all remediation panels
+  function expandAll() {
+    document.querySelectorAll('.remediation-section').forEach(sec => sec.style.display = '');
+    document.querySelectorAll('.table-container').forEach(tb => tb.style.display = '');
+  }
+
+  function collapseAll() {
+    document.querySelectorAll('.remediation-section').forEach(sec => sec.style.display = 'none');
+  }
+
+  // Initialize score gauge offset from data attribute if populated
+  window.addEventListener('DOMContentLoaded', () => {
+    const gauge = document.getElementById('gaugeCircle');
+    if (gauge) {
+      const offset = gauge.getAttribute('data-offset');
+      if (offset && !offset.startsWith('{{')) {
+        gauge.style.strokeDashoffset = offset;
+      }
+    }
+  });
 </script>
 
 </body>
 </html>
-
