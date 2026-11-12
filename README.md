@@ -113,6 +113,10 @@ git clone https://github.com/mfjrid/vibe2prod.git .agents/skills/vibe2prod
 
 Invoke the skill directly in conversation with your agent:
 
+> 🌐 **Automatic Language Matching**: `vibe2prod` automatically detects and matches the language of your prompt. If you ask in Bahasa Indonesia, the entire audit report, tables, and HTML export will be in Indonesian. If you prompt in English, it will be delivered in English.
+>
+> 📦 **Comprehensive 12-Module Review**: A standard audit evaluates all 12 operational categories by default (Vibecoder Pitfalls, Concurrency, Security, Access, Backup, Logging, Maintenance, Performance, Privacy, Email, SEO, Testing), not just security.
+
 ### 1. Enterprise Pre-Release Audit (Read-Only)
 ```text
 Audit this project using vibe2prod. Audit only, do not modify code.

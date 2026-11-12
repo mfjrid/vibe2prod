@@ -62,6 +62,20 @@ appropriate to its actual risks and business requirements.
     secrets.
 14. **Do not silently change production.** Treat production data, queues,
     storage, DNS, firewall, mail, and deployment settings as high impact.
+15. **Complete multi-module audit.** A standard production readiness audit is
+    NOT solely a security review. You MUST evaluate all 12 categories from
+    `references/` (Vibecoder Pitfalls, Concurrency & Idempotency, Security,
+    Access Management, Backup/Recovery, Logging/Observability, Maintenance/Diagnostics,
+    Performance, Privacy/Accessibility, Email, SEO, Testing). Never truncate or
+    produce a report containing only security unless the user explicitly
+    requested a security-only audit.
+16. **Match user language.** Generate all direct responses, executive summaries,
+    finding descriptions, remediation guidance, and report exports (Markdown and
+    HTML) in the **exact language used by the user in their prompt**. If the
+    user prompts in Indonesian (Bahasa Indonesia), output the complete audit
+    findings and HTML report in Indonesian. If the user prompts in English,
+    output in English. Technical paths, code symbols, and CLI commands remain in
+    their canonical code form.
 
 ## When to use
 
@@ -150,8 +164,11 @@ Identify:
 ### Phase 2 — Build a feature inventory
 
 Read the relevant checklists under `references/`. Use `adapters/` for the
-detected stack. Audit all categories, but mark irrelevant controls
-`NOT_APPLICABLE` with a reason.
+detected stack. You MUST evaluate all 12 categories: Vibecoder Pitfalls,
+Concurrency & Idempotency, Security, Access Management, Backup/Recovery,
+Logging/Observability, Maintenance/Diagnostics, Performance, Privacy/Accessibility,
+Email, SEO, and Testing. Do NOT stop after reviewing security alone.
+Mark irrelevant controls `NOT_APPLICABLE` with a clear reason.
 
 For each control, inspect implementation evidence. Use targeted searches,
 follow references into actual call sites, and inspect tests/configuration.
@@ -227,10 +244,19 @@ and deployment implications before recommending third-party dependencies.
 
 Generate the report using `templates/audit-report.md`. If the user or context
 requests a visual, client-facing, or interactive presentation, also generate a
-standalone single-file dashboard using `templates/audit-report.html`. Then offer
-practical next steps: prioritize a remediation backlog, generate AI auto-fix prompts,
-or implement a selected finding. Do not start implementation until the user
-approves a specific scope.
+standalone single-file dashboard using `templates/audit-report.html`.
+
+Ensure the generated report satisfies these critical constraints:
+1. **Language consistency**: The report text, summaries, evidence explanations,
+   and action plans MUST be written in the **same language as the user prompt**
+   (e.g., Bahasa Indonesia when invoked in Indonesian).
+2. **All 12 categories represented**: The report must display findings across
+   all 12 categories, not solely security findings. In `audit-report.html`,
+   populate or retain tables and cards for every evaluated category.
+
+Then offer practical next steps: prioritize a remediation backlog, generate AI
+auto-fix prompts, or implement a selected finding. Do not start implementation
+until the user approves a specific scope.
 
 ### Phase 8 — Implementation and verification
 

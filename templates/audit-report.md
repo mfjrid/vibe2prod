@@ -1,5 +1,7 @@
 # Web Application Quality Audit
 
+> **Language Rule**: Fill and translate all sections, descriptions, evidence notes, and action plans in the **same language used by the user when invoking the audit** (e.g., Bahasa Indonesia if requested in Indonesian).
+
 ## 1. Executive summary
 - Project:
 - Stack/version:
@@ -20,8 +22,9 @@
 ## 3. Summary
 | Category | Implemented | Partial | Missing | N/A | Unverified | Notes |
 |---|---:|---:|---:|---:|---:|---|
-| Security | | | | | | |
+| Vibecoder Pitfalls | | | | | | |
 | Concurrency & Idempotency | | | | | | |
+| Security | | | | | | |
 | SEO | | | | | | |
 | Backup & recovery | | | | | | |
 | Logging & observability | | | | | | |
