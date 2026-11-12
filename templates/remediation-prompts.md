@@ -119,3 +119,48 @@ You are a DevOps and reliability engineer. We need to add a production health ch
 3. When triggered, stop accepting new connections, finish existing requests within a 15-second timeout, close database pools, and exit cleanly with code 0.
 ```
 
+### Recipe 6: Fixing Race Conditions & TOCTOU (Atomic DB Updates & Locking)
+
+```markdown
+You are an expert backend engineer specializing in high-concurrency systems and transactional integrity. We need to eliminate a race condition (Time-of-Check to Time-of-Use / TOCTOU) in a critical mutation path.
+
+**Target**: `{TARGET_FILE_OR_ROUTE}`
+**Issue**: The code reads a record into application memory to verify conditions (e.g. balance, inventory stock, promo code usage) and then updates the record in a separate step. Under concurrent requests, this allows double-spending, inventory overselling, or multiple redemptions.
+
+**Instructions**:
+1. Inspect `{TARGET_FILE_OR_ROUTE}` where `{MUTATION_FUNCTION}` performs the check-and-update.
+2. Refactor the logic using one of these two battle-tested approaches appropriate for this stack ({FRAMEWORK_OR_ORM}):
+   - **Approach A (Atomic SQL Update with Row Count Check - Preferred)**:
+     Replace the check + update with a single atomic conditional query:
+     `UPDATE {TABLE} SET {COLUMN} = {COLUMN} - :amount WHERE id = :id AND {COLUMN} >= :amount RETURNING *;`
+     If 0 rows are affected, immediately return a 409 Conflict / 400 Bad Request indicating insufficient balance/stock.
+   - **Approach B (Explicit Transaction with Pessimistic Locking)**:
+     Wrap the operation in a database transaction (`BEGIN ... COMMIT`).
+     Select the target record using `SELECT ... FOR UPDATE` (or ORM equivalent: `.with_for_update()`, interactive transaction lock), perform the check, execute the update, and commit.
+3. Keep the locked transaction window as narrow as possible. Do NOT execute external HTTP calls, email sending, or slow hashing while holding the database lock.
+4. Add a concurrency unit or integration test simulating 5–10 parallel requests to confirm that only the valid number of requests succeed and all others fail gracefully without data corruption.
+```
+
+### Recipe 7: Implementing API Idempotency & Webhook Deduplication
+
+```markdown
+You are a senior backend and payment systems engineer. We need to implement strict idempotency and deduplication to prevent duplicate transactions on network retries and double-clicks.
+
+**Target**: `{TARGET_FILE_OR_WEBHOOK_ROUTE}`
+**Issue**: Mutation requests or incoming webhooks can be delivered more than once (network retries, user double-clicks, or at-least-once webhook delivery), causing duplicate charges, fulfillment, or database records.
+
+**Instructions**:
+1. For **API Mutation Endpoints (e.g. checkout, payment, transfer)**:
+   - Extract the `Idempotency-Key` or `X-Idempotency-Key` header from the incoming request.
+   - In your database or Redis, check if the key already exists:
+     - If status is `in_progress`: return 409 Conflict (request currently processing).
+     - If status is `completed`: return the cached response payload with an `Idempotent-Replayed: true` header immediately without re-executing logic.
+   - If new, atomically record the key with status `in_progress` and request hash. Execute the mutation in a transaction, store the final response payload, update status to `completed`, and set a 24-72 hour TTL.
+2. For **Incoming Webhook Handlers (e.g. Stripe, GitHub, Payment Gateway)**:
+   - Create or use a `webhook_events` table with schema: `event_id VARCHAR PRIMARY KEY`, `provider VARCHAR`, `event_type VARCHAR`, `created_at TIMESTAMP`.
+   - Before executing business logic, attempt to atomically insert `event_id`.
+   - If the insert fails on unique constraint violation (or event already exists), return HTTP 200 OK immediately and log: "Duplicate webhook event {event_id} ignored."
+   - If new, execute the fulfillment logic inside a transaction and commit.
+3. Add tests verifying that sending the exact same payload twice results in only one side effect.
+```
+

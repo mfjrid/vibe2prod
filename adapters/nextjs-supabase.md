@@ -41,17 +41,23 @@ Audit guidance for applications built with Next.js (App Router or Pages Router) 
 - [ ] **Server Actions Are Public Endpoints**: Every Server Action (`"use server"`) can be invoked directly via HTTP POST by any client. Verify each Server Action performs its own session and permission checks.
 - [ ] **Input Validation**: Server Actions and API routes must validate input with a runtime schema validator (e.g., `zod`) rather than relying on TypeScript types alone.
 - [ ] **CSRF & Origin Checking**: Verify Next.js Server Actions origin headers are respected and cookies use `SameSite=Lax` or `Strict`.
+- [ ] **Double-Submission & Idempotency**: Verify mutating Server Actions (checkout, payment, order creation) prevent double submissions via pending state hooks (`useActionState`, `useFormStatus`) and enforce server-side idempotency keys.
 
-### 4. Middleware & Route Protection
+### 4. Concurrency, Race Conditions & Webhooks
+- [ ] **Atomic Updates via Supabase RPC**: Look for read-modify-write patterns (e.g. `select('credits')` followed by `update({ credits: credits - 1 })`). These MUST be replaced with PostgreSQL atomic queries or stored procedures (RPC) using `UPDATE ... SET credits = credits - 1 WHERE id = ... AND credits >= 1` or `SELECT ... FOR UPDATE`.
+- [ ] **Webhook Event Deduplication**: Route Handlers receiving webhooks (Stripe, LemonSqueezy, Clerk, Resend) must log `event.id` into a dedicated `webhook_events` table with a `UNIQUE` index. Duplicate webhook retries must return `200 OK` without re-crediting or re-fulfilling.
+- [ ] **Interactive Transactions**: In Prisma or Drizzle, ensure multi-record mutations are wrapped in interactive transactions (`$transaction(async (tx) => ...)`) rather than isolated sequential calls.
+
+### 5. Middleware & Route Protection
 - [ ] **Middleware Is Not Complete Security**: Next.js Middleware runs on the Edge runtime and can be bypassed if static assets or prefetch routes are misconfigured. Ensure page-level and action-level checks exist behind middleware redirects.
 - [ ] **Session Refreshing**: Verify middleware uses `@supabase/ssr` to properly refresh expired auth tokens on request.
 
-### 5. Storage Buckets & File Uploads
+### 6. Storage Buckets & File Uploads
 - [ ] **Bucket Privacy**: Check whether Supabase Storage buckets are marked `public` or `private`. Private files (invoices, ID documents) must use private buckets with signed URLs.
 - [ ] **Storage RLS Policies**: Check storage policies on `storage.objects` to ensure users cannot overwrite or read other users' uploaded files.
 - [ ] **File Size & MIME Limits**: Ensure client and server enforce upload size limits and content-type validation.
 
-### 6. Performance, Hydration & Database Best Practices
+### 7. Performance, Hydration & Database Best Practices
 - [ ] **Database Indexes**: Check migrations for indexes on `user_id`, foreign keys, and columns used in `WHERE`, `ORDER BY`, or join clauses.
 - [ ] **Connection Pooling**: When connecting directly via Prisma/Drizzle or Supabase pooler (Supavisor), verify connection pool limits are configured for serverless/edge environments (`pgbouncer=true` or port `6543`).
 - [ ] **Waterfalls**: Look for nested `await` calls in server components that could run in parallel via `Promise.all()`.

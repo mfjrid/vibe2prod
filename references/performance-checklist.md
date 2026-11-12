@@ -11,6 +11,9 @@
 - [ ] Images are resized/compressed; lazy loading used where appropriate.
 - [ ] Uploads and exports have size/time/resource limits.
 - [ ] Database connection pool/limits and query timeouts are appropriate.
+- [ ] Database transactions and row locks are minimal in scope and duration; no slow external network/HTTP calls are executed while holding database locks.
+- [ ] Deadlock risk is minimized by consistent lock acquisition ordering across interdependent tables.
+- [ ] High-frequency counters or stock updates avoid full table locking; atomic increments or Redis buffers are utilized under high concurrency.
 - [ ] External API calls have timeouts, retries with backoff, and circuit-breaker
       behavior where justified.
 - [ ] Health checks do not create heavy load.

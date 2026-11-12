@@ -44,13 +44,18 @@ Audit guidance for Python web applications, specifically FastAPI, Flask, and mod
 - [ ] **Error Handling**: Verify global exception handlers do not return Python stack traces, internal paths, or raw database errors in production responses.
 - [ ] **Debug Mode**: Confirm FastAPI `debug=False` in production environments.
 
-### 3. Database Lifecycle & Concurrency
+### 3. Database Lifecycle, Race Conditions & Concurrency
 - [ ] **Session Leaks**: Confirm database sessions yield within a `try...finally` or context manager to prevent connection pool exhaustion under load.
 - [ ] **Blocking Calls in Async Handlers**: Look for synchronous I/O calls (`requests.get`, `time.sleep`, synchronous file I/O, heavy CPU processing) inside async route definitions (`async def`). These block the single-threaded event loop and degrade concurrency. Recommend `httpx.AsyncClient`, `asyncio.sleep`, or offloading to `run_in_threadpool`.
+- [ ] **Race Conditions in State Updates**: Verify mutable state updates (balances, quotas, inventory) do not perform read-modify-write in Python memory. Ensure use of atomic SQLAlchemy expressions (`update(Model).where(...).values(col=Model.col - 1)`) or pessimistic row locking with `.with_for_update()`.
+- [ ] **Transaction Atomicity**: Ensure multi-statement operations use explicit transaction blocks (`async with session.begin():`) with automatic rollback on error.
+- [ ] **No Global Mutable State in Handlers**: Confirm handlers do not modify module-level variables, caches, or singletons during request handling, which causes race conditions across concurrent async requests.
 
-### 4. Background Tasks & Long-Running Jobs
+### 4. Idempotency & Webhook Resilience
+- [ ] **API Idempotency Key Handling**: Mutation endpoints (payments, orders, subscriptions) check `Idempotency-Key` headers, using Redis or database locking to prevent duplicate operations.
+- [ ] **Webhook Deduplication**: Webhook receivers check incoming event IDs against a unique database table or Redis key before processing, returning `200 OK` on duplicates to avoid multiple fulfillments.
 - [ ] **FastAPI `BackgroundTasks` Limitations**: Verify `BackgroundTasks` are only used for trivial, idempotent tasks (e.g., sending an email). Heavy computational tasks or mission-critical workflows must use a dedicated queue (Celery, Arq, RQ, Redis Streams).
-- [ ] **Task Failure & Retries**: Ensure failures in background tasks are logged and do not cause silent data loss.
+- [ ] **Task Failure & Retries**: Ensure failures in background tasks are logged and do not cause silent data loss or inconsistent state.
 
 ### 5. File Uploads & Resource Protection
 - [ ] **Upload Size Limits**: Verify `UploadFile` endpoints enforce file size limits in memory and on disk before processing.

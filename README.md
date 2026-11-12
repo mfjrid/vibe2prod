@@ -39,7 +39,8 @@ Whether you are launching a prototype built in an afternoon or reviewing a matur
 ## Core Capabilities
 
 - 🔍 **Evidence-Based Discovery**: Every finding cites specific files, routes, ORM models, or configuration keys. No guesswork or superficial assumptions.
-- 🛡️ **Comprehensive Checklist Suite**: Covers security, access management, backup & restore verification, logging, performance, privacy/accessibility, SEO, and AI/LLM cost protection.
+- ⚡ **Concurrency & Idempotency Hardening**: Detects dangerous read-modify-write (TOCTOU) race conditions, balance overdrafts, missing database locks/transactions, API double-click vulnerabilities, and un-deduplicated webhook replays.
+- 🛡️ **Comprehensive Checklist Suite**: Covers security, concurrency/race conditions, idempotency, access management, backup & restore verification, logging, performance, privacy/accessibility, SEO, and AI/LLM cost protection.
 - 📊 **Enterprise Readiness Scoring**: Computes a weighted 0–100 readiness score with strict severity caps (e.g., any unresolved P0 vulnerability caps the overall score at 49).
 - 🔌 **Deep Framework Adapters**: Specialized discovery heuristics for Next.js (App Router/Server Actions), Supabase, Python FastAPI, AI/LLM applications, Node.js, Laravel, WordPress, and generic web stacks.
 - 🤖 **AI Auto-Fix Prompt Generator**: Bridges the gap between audit findings and actual code remediation.
@@ -62,6 +63,7 @@ vibe2prod/
 │   └── generic-web.md                # Framework-agnostic baseline
 ├── references/                       # In-depth production checklists
 │   ├── vibecoder-pitfalls-checklist.md  # Traps in rapid & AI-assisted codebases
+│   ├── concurrency-idempotency-checklist.md # Race conditions, atomic locks, idempotency
 │   ├── security-checklist.md            # Auth, CSRF, CORS, injection, headers
 │   ├── access-management-checklist.md   # RBAC, tenant isolation, session security
 │   ├── backup-recovery-checklist.md     # Automated backup & restore verification

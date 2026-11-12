@@ -23,6 +23,12 @@ versions.
 - Verify production debug/error configuration without exposing secret values.
 - Check session cookie settings, password hashing, reset token behavior, and MFA.
 
+## Concurrency & Idempotency
+- Database concurrency: verify sensitive mutations (balances, inventory, vouchers) use `DB::transaction()` and pessimistic locking (`->lockForUpdate()`) or atomic Eloquent methods (`decrement('stock')`).
+- Distributed / Atomic locks: verify complex actions use `Cache::lock($key, $seconds)->block(...)` to prevent duplicate execution across multiple workers.
+- Queue deduplication: ensure jobs that must not run concurrently implement `ShouldBeUnique` or `ShouldBeUniqueUntilProcessing`.
+- Idempotency & webhooks: verify mutating API endpoints and webhook receivers log and check unique event IDs to prevent duplicate fulfillment upon retries.
+
 ## Operational features
 - Scheduler: inspect `routes/console.php` or version-appropriate schedule setup,
   deployment cron/`schedule:run`, and heartbeat monitoring.

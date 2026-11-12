@@ -21,6 +21,7 @@
 | Category | Implemented | Partial | Missing | N/A | Unverified | Notes |
 |---|---:|---:|---:|---:|---:|---|
 | Security | | | | | | |
+| Concurrency & Idempotency | | | | | | |
 | SEO | | | | | | |
 | Backup & recovery | | | | | | |
 | Logging & observability | | | | | | |

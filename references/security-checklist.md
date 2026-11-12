@@ -57,7 +57,9 @@ Audit the actual threat surface. Mark controls N/A only with a reason.
 - [ ] Tenant/organization boundaries enforced in queries and jobs.
 - [ ] Sensitive admin actions require appropriate privilege and audit trail.
 - [ ] API tokens have scopes, expiry/revocation, and least privilege.
-- [ ] Webhooks verify signatures, timestamps, and replay protection.
+- [ ] Webhooks verify signatures, timestamps, and replay/deduplication protection.
+- [ ] Financial and state-mutating endpoints enforce idempotency keys to prevent duplicate transaction replay.
+- [ ] Business logic is hardened against race condition exploitation (e.g., parallel coupon redemption, balance overdraft, concurrent voucher claims).
 
 ## Dependencies, secrets, and deployment
 - [ ] Dependencies and runtime versions are supported and patched.

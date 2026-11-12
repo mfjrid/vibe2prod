@@ -3,9 +3,10 @@ name: vibe2prod
 description: >
   Audit web applications, running enterprise systems, and vibe-coded prototypes to
   ensure they are secure, resilient, and production-ready. Evaluates security,
-  data protection, authorization/BOLA, AI cost controls, performance, backup/recovery,
-  observability, and operational readiness. Generates production readiness scores
-  and copy-pasteable AI remediation prompts. Audit first; recommend before implementing.
+  concurrency/race conditions, idempotency, data protection, authorization/BOLA,
+  AI cost controls, performance, backup/recovery, observability, and operational
+  readiness. Generates production readiness scores and copy-pasteable AI remediation
+  prompts. Audit first; recommend before implementing.
 ---
 
 # vibe2prod — Web Application Enterprise Readiness Auditor
@@ -127,7 +128,8 @@ Inspect, as applicable:
 - framework/bootstrap configuration;
 - routes and middleware;
 - authentication and authorization;
-- database schema and migrations;
+- database schema, indexes, migrations, and transactional boundaries;
+- state-mutating endpoints, financial flows, webhooks, and idempotency handling;
 - scheduled jobs, queues, workers, and events;
 - storage and upload handling;
 - frontend forms and public endpoints;
@@ -251,6 +253,7 @@ or runtime behavior was verified unless it actually was.
 
 Use these category references:
 - `references/vibecoder-pitfalls-checklist.md`
+- `references/concurrency-idempotency-checklist.md`
 - `references/security-checklist.md`
 - `references/seo-checklist.md`
 - `references/backup-recovery-checklist.md`

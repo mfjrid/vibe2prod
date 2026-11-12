@@ -19,7 +19,11 @@ Audit:
 - SSRF, open redirects, path traversal, and upload safety.
 - Dependency audit, lockfile, supported Node.js version.
 - Structured logs, redaction, error monitoring, and request IDs.
-- Queue retries, idempotency, scheduler and worker health.
+- Race conditions and TOCTOU bugs: atomic DB operations, row locking (`FOR UPDATE`), and transaction boundaries (`$transaction`).
+- Mutating API idempotency: `Idempotency-Key` headers, request locking, and double-click prevention.
+- Webhook deduplication: persistent event ID log with unique constraints to handle at-least-once deliveries.
+- Queue retries, job deduplication (`jobId`), worker idempotency, scheduler and worker health.
+- In-memory shared state hazards: ensuring request handlers do not mutate shared global singletons.
 - Backup/restore process and operational runbooks.
 - Production secrets, debug behavior, health checks, and deployment rollback.
 

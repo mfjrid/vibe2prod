@@ -46,3 +46,12 @@ Audit against these common pitfalls when reviewing applications transitioning fr
 - [ ] **Automated Backup Schedule**: Database has automated daily backups with a verified point-in-time recovery (PITR) strategy.
 - [ ] **Soft Deletes or Audit Logs**: High-value records (users, orders, financial records) utilize soft deletion (`deleted_at`) or change data capture to protect against accidental user or admin deletion.
 
+## 9. Concurrency, Race Conditions & Idempotency
+- [ ] **Read-Modify-Write Flaws (TOCTOU)**: State mutations (wallet balances, inventory stock, coupon redemptions, voting counters, token quotas) do not fetch data to memory, compute changes, and save back naively. They use atomic SQL updates (`UPDATE ... SET col = col - 1 WHERE id = ... AND col >= 1`) or explicit pessimistic locks (`SELECT ... FOR UPDATE`).
+- [ ] **Application-Level Uniqueness Checks**: Existence checks (`if (!findFirst()) create()`) are backed by database-level `UNIQUE` constraints to prevent duplicate records under concurrent requests.
+- [ ] **Mutating Endpoints Idempotency**: Financial, order creation, or payment routes accept and verify `Idempotency-Key` headers to protect against client double-clicks and network retry duplication.
+- [ ] **Webhook Event Deduplication**: Webhook receivers (Stripe, GitHub, payment gateways) record incoming event IDs in a persistent deduplication table with a `UNIQUE` index. Duplicate webhook deliveries return `200 OK` immediately without re-triggering fulfillment or credits.
+- [ ] **Multi-Step Transaction Atomicity**: Multi-table updates (e.g. creating an order, updating inventory, and writing a ledger entry) are wrapped in database transactions (`BEGIN ... COMMIT`) to ensure all-or-nothing execution.
+- [ ] **Queue Worker Retries**: Background jobs are designed to be idempotent so that automatic worker retries after network timeouts do not duplicate side-effects.
+
+

@@ -36,6 +36,8 @@ AI-powered features built through rapid prototyping and vibe-coding carry unique
 - [ ] **Strict Per-User Rate Limiting**: AI endpoints are expensive. Verify strict rate limits exist per authenticated user ID and per IP address (e.g., max 10 requests/minute).
 - [ ] **Token Limits Enforced**: Every model call MUST specify `max_tokens` (or `max_completion_tokens`). Unbounded token generation allows attackers to cause severe financial denial-of-wallet (DoW).
 - [ ] **Daily / Monthly Usage Quotas**: Check whether users have a hard credit/usage cap to prevent automated bill exhaustion.
+- [ ] **Quota & Credit Deduction Race Conditions**: Verify credit/token deduction is atomic. Naive patterns check `if (credits > 0)` and deduct *after* completion; concurrent requests can drain dozens of expensive calls beyond remaining balance. Use atomic pre-reservation or atomic deduction with rollback.
+- [ ] **Generation Request Idempotency**: Verify endpoints that generate expensive assets (documents, images, multi-step agent runs) support idempotency keys or hash-based deduplication so network retries or double-clicks do not incur duplicate model charges.
 
 ### 2. Prompt Injection & Input Validation
 - [ ] **Clear Separation of System & User Roles**: Ensure untrusted user content is passed in the `user` role payload, never interpolated directly into the `system` instructions.
